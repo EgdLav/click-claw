@@ -1,0 +1,265 @@
+.modal {
+    display: flex; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.close-button {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.input-polit a {
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 20px;
+}
+
+.forgot-password {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    text-decoration: underline;
+    margin-bottom: 20px;
+}
+
+.auth-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-login {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 21px 25px;
+    font-weight: bold;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-login a {
+    color: white;
+}
+
+.btn-login button:hover {
+    transform: scale(1.1);
+}
+
+.btn-register-wrapper {
+    flex: 1;
+    border: 2px solid #006680; 
+    padding: 5px;
+    text-align: center;
+}
+
+.btn-register {
+    font-size: 12px;
+    text-decoration: none;
+    color: #006680;
+    font-weight: bold;
+}
+
+
+.search-modal {
+    display: block;
+    position: fixed;
+    z-index: 2000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+.search-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.search-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.search-close {
+    float: right;
+    font-size: 30px;
+    cursor: pointer;
+    line-height: 0.5;
+    margin-bottom: 20px;
+}
+
+.search-input-container {
+    clear: both;
+    position: relative;
+    margin-top: 40px;
+}
+
+.search-field {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.search-results {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 20px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-item-img {
+    width: 80px;
+    margin-right: 20px;
+}
+
+.search-item-img img {
+    width: 100%;
+    height: auto;
+}
+
+.search-item-title {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.search-item-price {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.search-item-status {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+}
+
+.search-footer {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    background-color: #eee;
+    padding: 20px;
+    text-align: right;
+}
+
+.search-view-all {
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.search-view-all .arrow1 {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+.check_address {
+    margin-top: 24px;
+    margin-bottom: 25px;
+    display: flex;
+    gap: 7px;
+    align-items: center;
+}
+
+.check_address > label {
+    font-size: 11px;
+    color: #A9A9A9;
+}
+
+.address-btn {
+    border-radius: 31px;
+}

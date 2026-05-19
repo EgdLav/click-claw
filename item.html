@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товар</title>
+    <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header__inner">
+
+            <div class="header__logo">
+                <img class="logo-img" loading="lazy" alt="Logo" src="./public/Frame 4.svg" />
+            </div>
+
+            <button class="burger-btn" aria-label="Открыть меню">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="header__nav">
+                    <a href="/index.html" class="nav-link">Главная</a>
+
+                    <div class="nav-dropdown">
+                        <span class="nav-link">Каталог</span>
+                        <img class="icon-arrow" alt="" src="./public/arrow.png" />
+                        <ul class="dropdown-menu">
+                            <li><a href="/catalog.html">Все товары</a></li>
+                            <li><a href="/catalog.html">Клавиатуры</a></li>
+                            <li><a href="/catalog.html">Мыши</a></li>
+                            <li><a href="/catalog.html">Наушники</a></li>
+                            <li><a href="/catalog.html">Прочее</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <span class="nav-link">Прочее</span>
+                        <img class="icon-arrow" alt="" src="./public/arrow.png" />
+                        <ul class="dropdown-menu">
+                            <li><a href="/about_us.html">О нас</a></li>
+                            <li><a href="/blog.html">Блог</a></li>
+                            <li><a href="/contacts.html">Контакты</a></li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class="mobile-actions">
+                    <a href="/register-modal.html" class="mobile-action-link">
+                        <img src="./public/acount.svg" alt="Аккаунт" />
+                        <span>Войти / Регистрация</span>
+                    </a>
+                    <a href="/cart.html" class="mobile-action-link">
+                        <img src="./public/cart.svg" alt="Корзина" />
+                        <span>Корзина</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="/search-modal.html" class="action-btn mobile-search">
+                <img src="./public/loop.svg" alt="Поиск" />
+            </a>
+
+            <div class="header__actions desktop-actions">
+                <a href="/search-modal.html" class="action-btn">
+                    <img src="./public/loop.svg" alt="Поиск" />
+                </a>
+                <a href="/register-modal.html" class="action-btn">
+                    <img src="./public/acount.svg" alt="Аккаунт" />
+                </a>
+                <a href="/cart.html" class="action-btn">
+                    <img src="./public/cart.svg" alt="Корзина" />
+                </a>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+        <div class="container product-page">
+            <div class="product-main">
+                <div>
+                    <div class="product-gallery">
+                        <div class="thumbnails">
+                            <img src="./public/clava.png" alt="" class="active">
+                            <img src="./public/clava.png" alt="">
+                            <img src="./public/clava.png" alt="">
+                            <img src="./public/clava.png" alt="">
+                            <img src="./public/clava.pngg" alt="">
+                        </div>
+                        <div class="main-image">
+                            <img src="./public/clava-big.png" alt="Alto Keys K98M">
+                        </div>
+
+
+
+                    </div>
+                    <div class="product-details-grid-1">
+                        <section class="specs-section">
+                            <h2>Технические характеристики</h2>
+                            <div class="accordion">
+
+                                <!-- Первый элемент (открыт по умолчанию) -->
+                                <div class="accordion-item">
+                                    <input type="checkbox" id="acc1" checked>
+                                    <label class="accordion-header" for="acc1">
+                                        Размеры
+                                        <span class="icon">
+                                            <img class="icon-plus" src="public/+-black.svg" alt="">
+                                            <img class="icon-close" src="public/x-black.svg" alt="">
+                                        </span>
+                                    </label>
+                                    <div class="accordion-content">
+                                        <ul>
+                                            <li>Высота: 5,79 дюйма (147 мм)</li>
+                                            <li>Ширина: 15,79 дюйма (401 мм)</li>
+                                            <li>Глубина: 1,56 дюйма (39,6 мм)</li>
+                                            <li>Вес: 38,8 унций (1100 г)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Второй элемент -->
+                                <div class="accordion-item">
+                                    <input type="checkbox" id="acc2">
+                                    <label class="accordion-header" for="acc2">
+                                        Общие характеристики
+                                        <span class="icon">
+                                            <img class="icon-plus" src="public/+-black.svg" alt="">
+                                            <img class="icon-close" src="public/x-black.svg" alt="">
+                                        </span>
+                                    </label>
+                                    <div class="accordion-content">
+                                        <ul>
+                                            <li>Высота: 5,79 дюйма (147 мм)</li>
+                                            <li>Ширина: 15,79 дюйма (401 мм)</li>
+                                            <li>Глубина: 1,56 дюйма (39,6 мм)</li>
+                                            <li>Вес: 38,8 унций (1100 г)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Третий элемент -->
+                                <div class="accordion-item">
+                                    <input type="checkbox" id="acc3">
+                                    <label class="accordion-header" for="acc3">
+                                        Системные требования
+                                        <span class="icon">
+                                            <img class="icon-plus" src="public/+-black.svg" alt="">
+                                            <img class="icon-close" src="public/x-black.svg" alt="">
+                                        </span>
+                                    </label>
+                                    <div class="accordion-content">
+                                        <ul>
+                                            <li>Высота: 5,79 дюйма (147 мм)</li>
+                                            <li>Ширина: 15,79 дюйма (401 мм)</li>
+                                            <li>Глубина: 1,56 дюйма (39,6 мм)</li>
+                                            <li>Вес: 38,8 унций (1100 г)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <aside class="product-sidebar">
+                    <h1 class="product-title-3">Alto Keys K98M</h1>
+                    <p class="product-short-desc">
+                        Беспроводная механическая клавиатура с уплотняющей конструкцией UniCushion для улучшенного
+                        удобства набора текста и возможности индивидуальной настройки.
+                    </p>
+
+                    <div class="product-price-3">10 999 ₽</div>
+
+                    <div class="product-options">
+                        <p class="option-label">Цвет: <strong>Графит</strong></p>
+                        <div class="color-picker">
+                            <button class="color-node black active"></button>
+                            <button class="color-node white"></button>
+                            <button class="color-node grey"></button>
+                        </div>
+                    </div>
+
+                    <p class="stock-status">В наличии: <span class="count">35шт.</span></p>
+
+                    <div class="purchase-controls">
+                        <div class="quantity-control">
+                            <button>−</button>
+                            <input type="text" value="1">
+                            <button>+</button>
+                        </div>
+                        <button class="btn-primary add-to-cart"><a href="cart.html">Добавить в корзину</a></button>
+                        <button class="btn-wishlist"><a href="favorite.html"><img width="40px"
+                                    src="./public/favorite.png" alt=""></a></button>
+                    </div>
+
+                    <div class="info-badges">
+                        <div class="badge">
+                            <img src="./public/guarantee-2.png" alt="">
+                            <div>
+                                <strong>Гарантия возврата денег</strong>
+                                <p>С возможностью легкого возврата</p>
+                            </div>
+                        </div>
+                        <div class="badge">
+                            <img src="./public/card-2.png" alt="">
+                            <div>
+                                <strong>Безопасная оплата</strong>
+                                <p>Покупки всегда безопасные и надежные</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;" class="delivery-promo">
+                        <img src="./public/car.png" alt="">
+                        <p>Бесплатная доставка при первом заказе от 2000₽ и бесплатный возврат</p>
+                    </div>
+
+                    <div class="line"></div>
+                    <div class="desc_item">
+                        <h1 class="product-title-3">Описание</h1>
+                        <p class="product-short-desc">
+                            Alto Keys K98M — это беспроводная механическая клавиатура с прокладкой UniCushion, которая
+                            поглощает вибрации, усиливая насыщенный и приятный звук каждого нажатия клавиши, обеспечивая
+                            при этом исключительный комфорт. Благодаря высококачественным материалам, уникальному
+                            дизайну и возможностям персонализации, она превратит ваше рабочее место в место тактильного
+                            и слухового вдохновения.
+                        </p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+
+    <footer class="footer">
+        <div class="footer container">
+
+            <div class="footer_top">
+
+                <div class="footer_col logo_col">
+                    <div class="footer_logo">
+                        <img src="./public/Frame 4.svg" alt="">
+                    </div>
+                    <p class="footer_address">
+                        420111, Республика Татарстан, г. Казань,<br>
+                        ул. Владимира Кулагина, д. 1
+                    </p>
+                    <p class="footer_contact">
+                        Почта: <a href="mailto:info@klik-klav.ru">info@klik-klav.ru</a><br><br>
+                        ИНН: 165912345678
+                    </p>
+
+                    <div class="social_icons">
+                        <a href=""><img src="../public/vk.png" alt="VK"></a>
+                        <a href=""><img src="../public/ok.png" alt="OK"></a>
+                        <a href=""><img src="../public/tg.png" alt="TG"></a>
+                        <a href=""><img src="../public/dzen.png" alt="Dzen"></a>
+                        <a href=""><img src="../public/rutube.png" alt="Rutube"></a>
+
+
+
+
+                    </div>
+                </div>
+
+                <div class="footer_col">
+                    <h3>Узнать больше</h3>
+                    <ul>
+                        <li><a href="/about_us.html">О нас</a></li>
+                        <li><a href="#">Политика гарантии</a></li>
+                        <li><a href="#">Политика возврата</a></li>
+                        <li><a href="#">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer_col">
+                    <h3>Поддержка</h3>
+                    <ul>
+                        <li><a href="mailto:opt@klik-klav.ru">Отдел продаж: opt@klik-klav.ru</a></li>
+                        <li><a href="mailto:return@klik-klav.ru">Отдел претензий: return@klik-klav.ru</a></li>
+                    </ul>
+                    <div class="work_hours">
+                        <p>Режим работы:</p>
+                        <p>Колл-центр:<br>
+                            -Пн–Пт: 09:00 – 21:00<br>
+                            -Сб–Вс: 10:00 – 18:00</p>
+                        <p>Служба поддержки:<br>
+                            -Ежедневно с 09:00 до 22:00</p>
+                    </div>
+                </div>
+
+                <div class="footer_col newsletter_col">
+                    <h3>Подпишись на рассылку</h3>
+                    <p class="newsletter_text">Зарегистрируйтесь, чтобы первыми узнавать о новинках, распродажах,
+                        эксклюзивном контенте и многом другом!</p>
+
+                    <form class="newsletter_form">
+                        <input type="email" placeholder="Введите адрес эл. почты" required>
+                        <button type="submit">Подписаться <img src="" alt=""></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer_bottom">
+                <p class="copyright">©КЛИК-КЛАВ. Все права защищены.</p>
+
+                <div class="payment_methods">
+                    <img src="../public/tbank.png" alt="Т-Банк">
+                    <img src="../public/yoomoney.png" alt="ЮMoney">
+                    <img src="../public/mir.png" alt="МИР">
+                    <img src="../public/sbp.png" alt="СБП">
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const burgerBtn = document.querySelector('.burger-btn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navOverlay = document.getElementById('navOverlay');
+
+            function openMenu() {
+                burgerBtn.classList.add('active');
+                mobileMenu.classList.add('active');
+                navOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                burgerBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+
+                document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+
+            burgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu.classList.contains('active')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+
+            navOverlay.addEventListener('click', closeMenu);
+
+            document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                dropdown.addEventListener('click', function (e) {
+                    // Работает только на мобилке
+                    if (window.innerWidth <= 428) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const isCurrentlyOpen = this.classList.contains('open');
+
+                        document.querySelectorAll('.nav-dropdown.open').forEach(item => {
+                            item.classList.remove('open');
+                        });
+
+                        if (!isCurrentlyOpen) {
+                            this.classList.add('open');
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.dropdown-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    setTimeout(closeMenu, 150);
+                });
+            });
+
+            document.querySelectorAll('.mobile-menu .nav-link:not(.nav-dropdown .nav-link)').forEach(link => {
+                link.addEventListener('click', () => {
+                    closeMenu();
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 428) {
+                    closeMenu();
+                }
+            });
+
+            let touchStartX = 0;
+            mobileMenu.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+
+            mobileMenu.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                if (touchStartX - touchEndX > 80) {
+                    closeMenu();
+                }
+            }, { passive: true });
+        });
+    </script>
+</body>
+
+</html>
