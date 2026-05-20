@@ -49,10 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     function getFilters() {
         const params = { action: 'list' };
 
-        const priceMin = priceMinInput?.value.trim();
-        const priceMax = priceMaxInput?.value.trim();
-        if (priceMin && Number(priceMin) > 0) params.price_min = priceMin;
-        if (priceMax && Number(priceMax) > 0) params.price_max = priceMax;
+        const minEl = document.getElementById('priceMin');
+        const maxEl = document.getElementById('priceMax');
+
+        const minVal = minEl ? minEl.value.trim() : '';
+        const maxVal = maxEl ? maxEl.value.trim() : '';
+
+        if (minVal !== '' && Number(minVal) > 0) params.price_min = minVal;
+        if (maxVal !== '' && Number(maxVal) > 0) params.price_max = maxVal;
 
         // All checked brands → send as comma-separated; API handles one brand
         // We'll filter client-side for multi-brand since API supports single brand
@@ -171,11 +175,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── Reset all filters ─────────────────────────────────────────────────────
     function resetFilters() {
-        if (priceMinInput) priceMinInput.value = '';
-        if (priceMaxInput) priceMaxInput.value = '';
-        if (sortSelect)    sortSelect.value = '';
+        const minEl = document.getElementById('priceMin');
+        const maxEl = document.getElementById('priceMax');
+        if (minEl) minEl.value = '';
+        if (maxEl) maxEl.value = '';
+        if (sortSelect) sortSelect.value = '';
         document.querySelectorAll('.brand-list input').forEach(cb => cb.checked = false);
-        // Remove category from URL without reload
         const url = new URL(window.location.href);
         url.searchParams.delete('category_id');
         url.searchParams.delete('category_name');
@@ -190,16 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         debounceTimer = setTimeout(loadProducts, 400);
     }
 
-    if (priceMinInput) {
-        priceMinInput.addEventListener('input', debounceLoad);
-        priceMinInput.addEventListener('change', loadProducts);
-    }
-    if (priceMaxInput) {
-        priceMaxInput.addEventListener('input', debounceLoad);
-        priceMaxInput.addEventListener('change', loadProducts);
-    }
-    if (sortSelect)  sortSelect.addEventListener('change', loadProducts);
-    if (resetBtn)    resetBtn.addEventListener('click', resetFilters);
+    document.getElementById('priceMin')?.addEventListener('input',  debounceLoad);
+    document.getElementById('priceMin')?.addEventListener('change', loadProducts);
+    document.getElementById('priceMax')?.addEventListener('input',  debounceLoad);
+    document.getElementById('priceMax')?.addEventListener('change', loadProducts);
+
+    if (sortSelect) sortSelect.addEventListener('change', loadProducts);
+    if (resetBtn)   resetBtn.addEventListener('click', resetFilters);
 
     // ── Init ──────────────────────────────────────────────────────────────────
     await loadBrands();  // build brand checkboxes from real data first
