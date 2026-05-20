@@ -451,7 +451,7 @@
                 <a href="/index.html" class="search-close"><img src="./public/close.svg" alt=""></a>
                 <h2 class="modal-title">Регистрация</h2>
 
-                <form class="auth-form">
+                <form class="auth-form" id="registerForm">
                     <div class="input-group">
                         <label>Имя</label>
                         <input type="text" placeholder="Имя" required>
@@ -475,12 +475,14 @@
                         </div>
                     </div>
                     <div class="input-polit">
-                        <a href="#" class="forgot-password"> <input type="checkbox">Политика конфиденциальности</a>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                            <input type="checkbox" id="agreeCheck">
+                            <a href="/public/privacy-policy.txt" download class="forgot-password">Политика конфиденциальности</a>
+                        </label>
                     </div>
 
-
                     <div class="auth-buttons">
-                        <button type="submit" class="btn-login"><a href="/index.html">Зарегистрироваться</a></button>
+                        <button type="submit" class="btn-login">Зарегистрироваться</button>
                         <div class="btn-register-wrapper">
                             <a href="/login-modal.html" class="btn-register">Уже есть аккаунт? <br>Войдите здесь</a>
                         </div>
@@ -490,6 +492,8 @@
         </div>
     </main>
 
+    <script src="js/api.js"></script>
+    <script src="js/register.js"></script>
     <script>
         const input = document.getElementById('passInput')
         const btn = document.getElementById('butInput')
@@ -497,10 +501,8 @@
         btn.addEventListener('click', () => {
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
             input.setAttribute('type', type);
-
             btn.src = type === 'password' ? './public/eye.png' : './public/eye2.png';
         });
-
     </script>
 
 

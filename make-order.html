@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -331,92 +331,7 @@
             </div>
         </div>
     </footer>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const burgerBtn = document.querySelector('.burger-btn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            const navOverlay = document.getElementById('navOverlay');
-
-            function openMenu() {
-                burgerBtn.classList.add('active');
-                mobileMenu.classList.add('active');
-                navOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeMenu() {
-                burgerBtn.classList.remove('active');
-                mobileMenu.classList.remove('active');
-                navOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-
-                document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => {
-                    dropdown.classList.remove('open');
-                });
-            }
-
-            burgerBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (mobileMenu.classList.contains('active')) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
-            });
-
-            navOverlay.addEventListener('click', closeMenu);
-
-            document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                dropdown.addEventListener('click', function (e) {
-                    // Работает только на мобилке
-                    if (window.innerWidth <= 428) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const isCurrentlyOpen = this.classList.contains('open');
-
-                        document.querySelectorAll('.nav-dropdown.open').forEach(item => {
-                            item.classList.remove('open');
-                        });
-
-                        if (!isCurrentlyOpen) {
-                            this.classList.add('open');
-                        }
-                    }
-                });
-            });
-
-            document.querySelectorAll('.dropdown-menu a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    setTimeout(closeMenu, 150);
-                });
-            });
-
-            document.querySelectorAll('.mobile-menu .nav-link:not(.nav-dropdown .nav-link)').forEach(link => {
-                link.addEventListener('click', () => {
-                    closeMenu();
-                });
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 428) {
-                    closeMenu();
-                }
-            });
-
-            let touchStartX = 0;
-            mobileMenu.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-            }, { passive: true });
-
-            mobileMenu.addEventListener('touchend', (e) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                if (touchStartX - touchEndX > 80) {
-                    closeMenu();
-                }
-            }, { passive: true });
-        });
-    </script>
+    <script src="js/menu.js"></script>
 </body>
 
 </html>
