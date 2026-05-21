@@ -453,35 +453,32 @@
                 <a href="/index.html" class="search-close"><img src="./public/close.svg" alt=""></a>
                 <h2 class="modal-title">Редактировать профиль</h2>
 
-                <form class="auth-form">
+                <form class="auth-form" id="editProfileForm">
                     <div class="input-group">
                         <label>Имя</label>
-                        <input type="text" placeholder="Имя" required>
+                        <input type="text" id="editFirstName" placeholder="Имя" required>
                     </div>
 
                     <div class="input-group">
                         <label>Фамилия</label>
-                        <input type="text" placeholder="Фамилия" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Город</label>
-                        <input type="text" placeholder="Город" required>
+                        <input type="text" id="editLastName" placeholder="Фамилия">
                     </div>
 
                     <div class="input-group">
                         <label>Телефон</label>
-                        <input type="tel" placeholder="Телефон" required>
+                        <input type="tel" id="editPhone" placeholder="Телефон">
                     </div>
                     <div class="auth-button">
-                        <button type="submit" class="btn-login address-btn"><a href="/profile-settings.html">Сохранить
-                                профиль</a></button>
+                        <button type="submit" class="btn-login address-btn">Сохранить профиль</button>
                     </div>
                 </form>
             </div>
         </div>
     </main>
+    <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
+    <script src="js/slider.js"></script>
+    <script src="js/edit-profile.js"></script>
 </body>
 
 </html>

@@ -187,6 +187,31 @@
 
         <section class="about_us-btn_wrapper">
             <div class="container">
+                <div class="about_us-docs" style="margin-bottom:40px;">
+                    <h3 style="font-size:24px;font-weight:700;margin-bottom:20px;">Официальные документы</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:16px;">
+                        <a href="public/privacy-policy.txt" download class="about_us-doc-btn"
+                           style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border:2px solid #000;border-radius:8px;text-decoration:none;color:#000;font-weight:600;font-size:15px;">
+                            <img src="public/back.png" alt="" style="width:20px;transform:rotate(270deg);">
+                            Политика конфиденциальности
+                        </a>
+                        <a href="public/oferta.txt" download class="about_us-doc-btn"
+                           style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border:2px solid #000;border-radius:8px;text-decoration:none;color:#000;font-weight:600;font-size:15px;">
+                            <img src="public/back.png" alt="" style="width:20px;transform:rotate(270deg);">
+                            Публичная оферта
+                        </a>
+                        <a href="public/warranty.txt" download class="about_us-doc-btn"
+                           style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border:2px solid #000;border-radius:8px;text-decoration:none;color:#000;font-weight:600;font-size:15px;">
+                            <img src="public/back.png" alt="" style="width:20px;transform:rotate(270deg);">
+                            Политика гарантии
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about_us-btn_wrapper">
+            <div class="container">
                 <div class="about_us-btn">
                     <div class="title">
                         <h3>готовы найти свой идеальный девайс?</h3>
@@ -283,7 +308,9 @@
             </div>
         </div>
     </footer>
+    <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', initAuthHeader);</script>
 </body>
 
 </html>

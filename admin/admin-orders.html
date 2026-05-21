@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -537,7 +537,7 @@
             <a href="admin-orders.html" class="admin__sidebar-link">
                 Заказы
             </a>
-            <a href="index.html" class="admin__sidebar-link logout">
+            <a href="../index.html" class="admin__sidebar-link logout">
                 Выйти
             </a>
         </aside>
@@ -547,7 +547,7 @@
                 <div>
                     <h1 class="admin__title">Заказы</h1>
                     <p class="admin__breadcrumbs">
-                        <a href="index.html">Главная</a> &rsaquo; <a href="admin.html">Админ-панель</a> &rsaquo; Заказы
+                        <a href="../index.html">Главная</a> &rsaquo; <a href="admin.html">Админ-панель</a> &rsaquo; Заказы
                     </p>
                 </div>
                 <select class="admin__form-select" style="width:auto;padding:12px 20px;">
@@ -642,27 +642,9 @@
         </main>
     </div>
 
-    <script>
-        function updateStatus(btn, badgeClass, statusText) {
-            const row = btn.closest('tr');
-            const badge = row.querySelector('.admin__badge');
-            const actions = row.querySelector('.admin__actions');
-
-            badge.className = 'admin__badge ' + badgeClass;
-            badge.textContent = statusText;
-
-            if (statusText === 'Выполнен' || statusText === 'Отменён') {
-                const icon = statusText === 'Выполнен' ? '✓ Завершён' : '✗ Отклонён';
-                const color = statusText === 'Выполнен' ? '#27ae60' : '#e74c3c';
-                actions.innerHTML = '<span style="color:' + color + ';font-size:14px;">' + icon + '</span>';
-            }
-        }
-        document.querySelectorAll('.admin__btn-danger').forEach(btn => {
-            btn.addEventListener('click', function () {
-                if (!confirm('Вы уверены?')) return false;
-            });
-        });
-    </script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/admin-orders.js"></script>
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -538,7 +538,7 @@
             <a href="admin-orders.html" class="admin__sidebar-link">
                 Заказы
             </a>
-            <a href="index.html" class="admin__sidebar-link logout">
+            <a href="../index.html" class="admin__sidebar-link logout">
                 Выйти
             </a>
         </aside>
@@ -549,7 +549,7 @@
                 <div>
                     <h1 class="admin__title">Админ-панель</h1>
                     <p class="admin__breadcrumbs">
-                        <a href="index.html">Главная</a> &rsaquo; Админ-панель
+                        <a href="../index.html">Главная</a> &rsaquo; Админ-панель
                     </p>
                 </div>
                 <a href="admin-add-product.html" class="admin__btn">Добавить товар</a>
@@ -649,18 +649,8 @@
         </main>
     </div>
 
-    <script>
-        document.querySelectorAll('.admin__btn-success').forEach(btn => {
-            btn.addEventListener('click', () => alert('Статус обновлён ✓'));
-        });
-        document.querySelectorAll('.admin__btn-danger').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('Вы уверены, что хотите отклонить заказ?')) {
-                    alert('Заказ отклонён');
-                }
-            });
-        });
-    </script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
 </body>
 
 </html>

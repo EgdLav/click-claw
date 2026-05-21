@@ -74,6 +74,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const catId = urlParams.get('category_id');
         if (catId) params.category_id = catId;
 
+        // Search query from URL ?search=
+        const searchQ = urlParams.get('search');
+        if (searchQ) params.search = searchQ;
+
         return params;
     }
 
