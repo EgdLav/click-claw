@@ -2,6 +2,7 @@
 /**
  * Orders API: create, list (user), all (admin), update_status
  */
+ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';

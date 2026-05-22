@@ -2,6 +2,7 @@
 /**
  * Users API: get current user, update profile
  */
+ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';

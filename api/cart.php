@@ -3,6 +3,7 @@
  * Cart API: get, add, update, remove, clear
  * Cart is stored in $_SESSION['cart'] as [product_id => quantity]
  */
+ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';

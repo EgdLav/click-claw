@@ -2,6 +2,7 @@
 /**
  * Products API: list, get, create, update, delete
  */
+ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -79,12 +80,12 @@ function handleList(): void {
     $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
     $sort = getGetField('sort');
-    $orderBy = match ($sort) {
-        'price_asc'  => 'p.price ASC',
-        'price_desc' => 'p.price DESC',
-        'name_asc'   => 'p.name ASC',
-        default      => 'p.id DESC',
-    };
+    switch ($sort) {
+        case 'price_asc':  $orderBy = 'p.price ASC';  break;
+        case 'price_desc': $orderBy = 'p.price DESC'; break;
+        case 'name_asc':   $orderBy = 'p.name ASC';   break;
+        default:           $orderBy = 'p.id DESC';    break;
+    }
 
     $sql = "
         SELECT p.*, c.name AS category_name

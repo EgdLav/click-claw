@@ -3,7 +3,15 @@
  * Shared utility functions for КЛИК-КЛАВ
  */
 
+// Prevent PHP warnings/notices from corrupting JSON responses
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 function jsonResponse(bool $success, $data = null, string $error = '', int $code = 200): void {
+    // Discard any accidental output (PHP notices, warnings, etc.)
+    if (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     $response = ['success' => $success];
