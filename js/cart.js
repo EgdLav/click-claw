@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalEl     = document.querySelector('.total-row span:last-child');
     const finalEl     = document.querySelector('.final-total span:last-child');
     const checkoutBtn = document.querySelector('.checkout-btn');
+    const subtitle    = document.querySelector('.cart-subtitle');
+
+    // Immediately hide subtitle if localStorage says logged in (no flicker)
+    if (subtitle && isUserLoggedIn()) subtitle.style.display = 'none';
+
+    // Confirm with server — source of truth
+    const authData   = await apiGet('api/auth.php', { action: 'status' });
+    const loggedIn   = authData.success && authData.data.logged_in;
+    if (subtitle) subtitle.style.display = loggedIn ? 'none' : 'block';
 
     async function loadCart() {
         const data = await apiGet('api/cart.php', { action: 'get' });

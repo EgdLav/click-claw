@@ -8,14 +8,22 @@ async function apiPost(endpoint, data) {
     for (const key in data) {
         form.append(key, data[key]);
     }
-    const res = await fetch(endpoint, { method: 'POST', body: form });
+    const res = await fetch(endpoint, {
+        method: 'POST',
+        body: form,
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
     return res.json();
 }
 
 async function apiGet(endpoint, params = {}) {
     const qs = new URLSearchParams(params).toString();
     const url = qs ? `${endpoint}?${qs}` : endpoint;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
     return res.json();
 }
 
@@ -25,12 +33,15 @@ async function apiGet(endpoint, params = {}) {
 async function initAuthHeader() {
     try {
         const data = await apiGet('api/auth.php', { action: 'status' });
-        const accountLinks = document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]');
 
         if (data.success && data.data.logged_in) {
+            // Keep localStorage in sync
+            localStorage.setItem('user', JSON.stringify(data.data));
+
             const user = data.data;
+            const accountLinks = document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]');
             accountLinks.forEach(link => {
-                link.href = 'profile.html';
+                link.href = '/profile.html';
                 const span = link.querySelector('span');
                 if (span) span.textContent = user.user_name;
             });
@@ -40,13 +51,24 @@ async function initAuthHeader() {
                 logoutBtn.style.display = 'inline-block';
                 logoutBtn.addEventListener('click', async () => {
                     await apiGet('api/auth.php', { action: 'logout' });
+                    localStorage.removeItem('user');
                     window.location.href = 'index.html';
                 });
             }
+        } else {
+            // Session expired or not logged in — clear localStorage
+            localStorage.removeItem('user');
         }
     } catch (e) {
         // silently fail — not critical
     }
+}
+
+/**
+ * Fast synchronous check using localStorage — use for UI show/hide
+ */
+function isUserLoggedIn() {
+    return localStorage.getItem('user') !== null;
 }
 
 /**

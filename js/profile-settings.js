@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    initAuthHeader();
 
     // ── Auth check ────────────────────────────────────────────────────────────
     const authData = await apiGet('api/auth.php', { action: 'status' });

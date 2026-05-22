@@ -3,11 +3,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── Check auth — redirect to login if not logged in ───────────────────────
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
+        localStorage.removeItem('user');
         window.location.href = 'login-modal.html';
         return;
     }
 
     const user = authData.data;
+
+    // ── Update header account link immediately (we know user is logged in) ────
+    document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
+        link.href = '/profile.html';
+        const span = link.querySelector('span');
+        if (span) span.textContent = user.user_name;
+    });
 
     // ── Fill in user name ─────────────────────────────────────────────────────
     document.querySelectorAll('.profile__welcome h1').forEach(el => {
@@ -19,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.innerHTML = 'Выйти';
         btn.addEventListener('click', async () => {
             await apiGet('api/auth.php', { action: 'logout' });
+            localStorage.removeItem('user');
             window.location.href = 'index.html';
         });
     });

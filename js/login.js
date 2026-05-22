@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await apiPost('api/auth.php?action=login', { email, password });
 
             if (data.success) {
+                // Store login state for client-side checks
+                localStorage.setItem('user', JSON.stringify(data.data));
                 if (data.data.role === 'admin') {
                     window.location.href = 'admin/admin.html';
                 } else {
