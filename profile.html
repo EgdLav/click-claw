@@ -1,31 +1,23 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
-
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль</title>
+    <title>Профиль — КЛИК-КЛАВ</title>
     <link rel="stylesheet" href="./css/style.css" />
 </head>
-
 <body>
     <header class="header">
         <div class="container header__inner">
-
             <div class="header__logo">
                 <img class="logo-img" loading="lazy" alt="Logo" src="./public/Frame 4.svg" />
             </div>
-
             <button class="burger-btn" aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </button>
-
             <div class="mobile-menu" id="mobileMenu">
                 <nav class="header__nav">
                     <a href="/index.html" class="nav-link">Главная</a>
-
                     <div class="nav-dropdown">
                         <span class="nav-link">Каталог</span>
                         <img class="icon-arrow" alt="" src="./public/arrow.png" />
@@ -37,7 +29,6 @@
                             <li><a href="/catalog.html">Прочее</a></li>
                         </ul>
                     </div>
-
                     <div class="nav-dropdown">
                         <span class="nav-link">Прочее</span>
                         <img class="icon-arrow" alt="" src="./public/arrow.png" />
@@ -48,7 +39,6 @@
                         </ul>
                     </div>
                 </nav>
-
                 <div class="mobile-actions">
                     <a href="/register-modal.html" class="mobile-action-link">
                         <img src="./public/acount.svg" alt="Аккаунт" />
@@ -60,171 +50,111 @@
                     </a>
                 </div>
             </div>
-
             <a href="/search-modal.html" class="action-btn mobile-search">
                 <img src="./public/loop.svg" alt="Поиск" />
             </a>
-
             <div class="header__actions desktop-actions">
-                <a href="/search-modal.html" class="action-btn">
-                    <img src="./public/loop.svg" alt="Поиск" />
-                </a>
-                <a href="/register-modal.html" class="action-btn">
-                    <img src="./public/acount.svg" alt="Аккаунт" />
-                </a>
-                <a href="/cart.html" class="action-btn">
-                    <img src="./public/cart.svg" alt="Корзина" />
-                </a>
+                <a href="/search-modal.html" class="action-btn"><img src="./public/loop.svg" alt="Поиск" /></a>
+                <a href="/register-modal.html" class="action-btn"><img src="./public/acount.svg" alt="Аккаунт" /></a>
+                <a href="/cart.html" class="action-btn"><img src="./public/cart.svg" alt="Корзина" /></a>
             </div>
         </div>
     </header>
 
-
     <main>
         <div class="container">
-            <section class="profile">
-                <div class="profile__top">
-                    <div class="profile__user-card">
-                        <div class="profile__avatar">
-                            <img src="./public/avatar.png" alt="Аватар">
-                        </div>
-                        <a href="/edit_profile-modal.html"><button class="profile__edit-link">
-                                РЕДАКТИРОВАТЬ ПРОФИЛЬ <img src="./public/edit_profile.png" alt="">
-                            </button></a>
+            <div class="pf">
 
-                        <div class="profile__divider"></div>
-                        <button class="profile__logout-btn">Выйти</button>
+                <!-- Левая колонка: карточка пользователя -->
+                <aside class="pf__sidebar">
+                    <div class="pf__avatar-wrap">
+                        <img src="./public/avatar.png" alt="Аватар" class="pf__avatar">
                     </div>
+                    <h2 class="pf__name" id="pfName">—</h2>
+                    <p class="pf__role" id="pfRole">Покупатель</p>
 
-                    <div class="profile__vertical-line"></div>
-
-                    <div class="profile__welcome">
-                        <h1>Привет, Иван</h1>
-                        <p>Добро пожаловать в ваш аккаунт. Проверяйте заказы, обновляйте список желаний и редактируйте
-                            свои данные — все в одном месте!</p>
-                    </div>
-
-                    <div class="profile__last-order">
-                        <h3>ВАШ ПОСЛЕДНИЙ ЗАКАЗ</h3>
-                        <div class="order-empty-card">
-                            <p>В данный момент у вас нет заказов.</p>
-                            <p> Оформите свой заказ и он появится здесь.</p>
-                            <a href="/catalog.html" class="order-search-link">
-                                ПОИСК ЗАКАЗОВ <img src="./public/search.png" alt="">
-                            </a>
+                    <div class="pf__info-list">
+                        <div class="pf__info-item">
+                            <span class="pf__info-label">Email</span>
+                            <span class="pf__info-val" id="pfEmail">—</span>
                         </div>
-                    </div>
-                </div>
-
-                <nav class="profile__tabs">
-                    <a href="/profile.html" class="tab-item active">Обзор</a>
-                    <a href="/orders.html" class="tab-item">Мои заказы</a>
-                    <a href="/profile-settings.html" class="tab-item">Настройка учетной записи</a>
-                </nav>
-
-                <div class="profile__grid">
-                    <div class="grid-card">
-                        <div class="grid-card__header">
-                            <h3>Мои заказы</h3>
+                        <div class="pf__info-item">
+                            <span class="pf__info-label">Телефон</span>
+                            <span class="pf__info-val" id="pfPhone">—</span>
                         </div>
-                        <div class="grid-card__content">
-                            <div class="empty-state-icon">
-                                <img src="./public/orders.png" alt="">
-                            </div>
-                            <p>Нет заказов для отображения.</p>
+                        <div class="pf__info-item">
+                            <span class="pf__info-label">Дата регистрации</span>
+                            <span class="pf__info-val" id="pfDate">—</span>
                         </div>
                     </div>
 
-                    <div class="grid-card">
-                        <div class="grid-card__header">
-                            <h3>Мой список желаний</h3>
-                            <a href="favorite.html" class="view-all">Смотреть все <span>&gt;</span></a>
-                        </div>
-                        <div class="grid-card__content">
-                            <div class="empty-state-icon">
-                                <img src="./public/favorite.png" alt="">
-                            </div>
-                            <p>В вашем списке пока нет элементов</p>
-                        </div>
+                    <div class="pf__sidebar-actions">
+                        <button class="pf__action-btn pf__action-btn--dark" id="pfLogout">Выйти</button>
+                    </div>
+                </aside>
+
+                <!-- Правая колонка: заказы + вишлист -->
+                <div class="pf__main">
+                    <div class="pf__section-header">
+                        <h3 class="pf__section-title">Мои заказы</h3>
+                    </div>
+                    <div id="pfOrders" class="pf__orders">
+                        <div class="pf__loading">Загрузка...</div>
+                    </div>
+
+                    <div class="pf__section-header" style="margin-top:48px;">
+                        <h3 class="pf__section-title">Список желаний</h3>
+                    </div>
+                    <div id="pfWishlist" class="pf__wish-preview">
+                        <div class="pf__loading">Загрузка...</div>
                     </div>
                 </div>
-            </section>
+
+            </div>
         </div>
     </main>
 
-
     <footer class="footer">
         <div class="footer container">
-
             <div class="footer_top">
-
                 <div class="footer_col logo_col">
-                    <div class="footer_logo">
-                        <img src="./public/Frame 4.svg" alt="">
-                    </div>
-                    <p class="footer_address">
-                        420111, Республика Татарстан, г. Казань,<br>
-                        ул. Владимира Кулагина, д. 1
-                    </p>
-                    <p class="footer_contact">
-                        Почта: <a href="mailto:info@klik-klav.ru">info@klik-klav.ru</a><br><br>
-                        ИНН: 165912345678
-                    </p>
-
+                    <div class="footer_logo"><img src="./public/Frame 4.svg" alt=""></div>
+                    <p class="footer_address">420111, Республика Татарстан, г. Казань,<br>ул. Владимира Кулагина, д. 1</p>
+                    <p class="footer_contact">Почта: <a href="mailto:info@klik-klav.ru">info@klik-klav.ru</a><br><br>ИНН: 165912345678</p>
                     <div class="social_icons">
                         <a href=""><img src="../public/vk.png" alt="VK"></a>
                         <a href=""><img src="../public/ok.png" alt="OK"></a>
                         <a href=""><img src="../public/tg.png" alt="TG"></a>
                         <a href=""><img src="../public/dzen.png" alt="Dzen"></a>
                         <a href=""><img src="../public/rutube.png" alt="Rutube"></a>
-
-
-
-
                     </div>
                 </div>
-
                 <div class="footer_col">
                     <h3>Узнать больше</h3>
                     <ul>
                         <li><a href="/about_us.html">О нас</a></li>
                         <li><a href="#">Политика гарантии</a></li>
-                        <li><a href="#">Политика возврата</a></li>
                         <li><a href="#">Политика конфиденциальности</a></li>
                     </ul>
                 </div>
-
                 <div class="footer_col">
                     <h3>Поддержка</h3>
                     <ul>
-                        <li><a href="mailto:opt@klik-klav.ru">Отдел продаж: opt@klik-klav.ru</a></li>
-                        <li><a href="mailto:return@klik-klav.ru">Отдел претензий: return@klik-klav.ru</a></li>
+                        <li><a href="mailto:opt@klik-klav.ru">Отдел продаж</a></li>
+                        <li><a href="mailto:return@klik-klav.ru">Отдел претензий</a></li>
                     </ul>
-                    <div class="work_hours">
-                        <p>Режим работы:</p>
-                        <p>Колл-центр:<br>
-                            -Пн–Пт: 09:00 – 21:00<br>
-                            -Сб–Вс: 10:00 – 18:00</p>
-                        <p>Служба поддержки:<br>
-                            -Ежедневно с 09:00 до 22:00</p>
-                    </div>
                 </div>
-
                 <div class="footer_col newsletter_col">
                     <h3>Подпишись на рассылку</h3>
-                    <p class="newsletter_text">Зарегистрируйтесь, чтобы первыми узнавать о новинках, распродажах,
-                        эксклюзивном контенте и многом другом!</p>
-
+                    <p class="newsletter_text">Первыми узнавайте о новинках и распродажах!</p>
                     <form class="newsletter_form">
                         <input type="email" placeholder="Введите адрес эл. почты" required>
-                        <button type="submit">Подписаться <img src="" alt=""></button>
+                        <button type="submit">Подписаться</button>
                     </form>
                 </div>
             </div>
-
             <div class="footer_bottom">
                 <p class="copyright">©КЛИК-КЛАВ. Все права защищены.</p>
-
                 <div class="payment_methods">
                     <img src="../public/tbank.png" alt="Т-Банк">
                     <img src="../public/yoomoney.png" alt="ЮMoney">
@@ -234,9 +164,9 @@
             </div>
         </div>
     </footer>
+
     <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/profile.js"></script>
 </body>
-
 </html>

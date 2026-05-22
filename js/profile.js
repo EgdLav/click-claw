@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── Check auth — redirect to login if not logged in ───────────────────────
+    // ── Auth check ────────────────────────────────────────────────────────────
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         localStorage.removeItem('user');
@@ -10,81 +10,139 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = authData.data;
 
-    // ── Update header account link immediately (we know user is logged in) ────
+    // Update header link
     document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
         link.href = '/profile.html';
         const span = link.querySelector('span');
         if (span) span.textContent = user.user_name;
     });
 
-    // ── Fill in user name ─────────────────────────────────────────────────────
-    document.querySelectorAll('.profile__welcome h1').forEach(el => {
-        el.textContent = `Привет, ${user.user_name}`;
+    // ── Load full user info ───────────────────────────────────────────────────
+    const userData = await apiGet('api/users.php', { action: 'get' });
+    if (userData.success) {
+        const u = userData.data;
+        const el = id => document.getElementById(id);
+        if (el('pfName'))  el('pfName').textContent  = u.name  || '—';
+        if (el('pfEmail')) el('pfEmail').textContent = u.email || '—';
+        if (el('pfPhone')) el('pfPhone').textContent = u.phone || 'Не указан';
+        if (el('pfRole'))  el('pfRole').textContent  = u.role === 'admin' ? 'Администратор' : 'Покупатель';
+        if (el('pfDate'))  el('pfDate').textContent  = u.created_at
+            ? new Date(u.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+            : '—';
+    }
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+    document.getElementById('pfLogout')?.addEventListener('click', async () => {
+        await apiGet('api/auth.php', { action: 'logout' });
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
     });
 
-    // ── Logout button ─────────────────────────────────────────────────────────
-    document.querySelectorAll('.profile__logout-btn').forEach(btn => {
-        btn.innerHTML = 'Выйти';
-        btn.addEventListener('click', async () => {
-            await apiGet('api/auth.php', { action: 'logout' });
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        });
-    });
-
-    // ── Load orders ───────────────────────────────────────────────────────────
+    // ── Orders ────────────────────────────────────────────────────────────────
     const statusLabels = {
-        new:        { text: 'Новый',      color: '#2196F3' },
-        processing: { text: 'В обработке', color: '#FF9800' },
-        completed:  { text: 'Выполнен',   color: '#4CAF50' },
-        cancelled:  { text: 'Отменён',    color: '#F44336' },
+        new:        { text: 'Новый',       cls: 'status--new' },
+        processing: { text: 'В обработке', cls: 'status--processing' },
+        completed:  { text: 'Выполнен',    cls: 'status--completed' },
+        cancelled:  { text: 'Отменён',     cls: 'status--cancelled' },
     };
 
+    const ordersEl   = document.getElementById('pfOrders');
     const ordersData = await apiGet('api/orders.php', { action: 'list' });
-    const orders = ordersData.success ? ordersData.data : [];
+    const orders     = ordersData.success ? ordersData.data : [];
 
-    // Last order block
-    const lastOrderBlock = document.querySelector('.profile__last-order');
-    if (lastOrderBlock) {
-        if (orders.length > 0) {
-            const o = orders[0];
-            const st = statusLabels[o.status] || { text: o.status, color: '#888' };
-            const total = Number(o.total).toLocaleString('ru-RU') + ' ₽';
-            const date = new Date(o.created_at).toLocaleDateString('ru-RU');
-            lastOrderBlock.innerHTML = `
-                <h3>ВАШ ПОСЛЕДНИЙ ЗАКАЗ</h3>
-                <div class="order-empty-card" style="text-align:left;">
-                    <p><strong>Заказ №${o.id}</strong> от ${date}</p>
-                    <p>Товаров: ${o.items_count} · Сумма: ${total}</p>
-                    <p>Статус: <span style="color:${st.color};font-weight:600">${st.text}</span></p>
-                    <a href="orders.html" class="order-search-link" style="margin-top:12px;display:inline-flex;">
-                        МОИ ЗАКАЗЫ <img src="public/search.png" alt="">
-                    </a>
+    if (ordersEl) {
+        if (orders.length === 0) {
+            ordersEl.innerHTML = `
+                <div class="pf__empty">
+                    <p>У вас пока нет заказов</p>
+                    <a href="/catalog.html" class="btn" style="margin-top:16px;display:inline-block;">Перейти в каталог</a>
                 </div>`;
+        } else {
+            ordersEl.innerHTML = orders.map(o => {
+                const st    = statusLabels[o.status] || { text: o.status, cls: '' };
+                const total = Number(o.total).toLocaleString('ru-RU') + ' ₽';
+                const date  = new Date(o.created_at).toLocaleDateString('ru-RU', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                const addr = o.address ? `<p class="ord__card-addr">${o.address}</p>` : '';
+                return `
+                <div class="pf__order-card">
+                    <div class="pf__order-top">
+                        <div>
+                            <span class="pf__order-num">Заказ №${o.id}</span>
+                            <span class="pf__order-date">${date}</span>
+                        </div>
+                        <span class="pf__status ${st.cls}">${st.text}</span>
+                    </div>
+                    ${addr}
+                    <div class="pf__order-bottom">
+                        <span>${o.items_count} товар(а)</span>
+                        <span class="pf__order-total">${total}</span>
+                    </div>
+                </div>`;
+            }).join('');
         }
     }
 
-    // Orders grid card
-    const ordersCard = document.querySelector('.profile__grid .grid-card:first-child .grid-card__content');
-    if (ordersCard) {
-        if (orders.length === 0) {
-            ordersCard.innerHTML = `
-                <div class="empty-state-icon"><img src="public/orders.png" alt=""></div>
-                <p>Нет заказов для отображения.</p>`;
-        } else {
-            ordersCard.innerHTML = orders.slice(0, 3).map(o => {
-                const st = statusLabels[o.status] || { text: o.status, color: '#888' };
-                const total = Number(o.total).toLocaleString('ru-RU') + ' ₽';
-                const date = new Date(o.created_at).toLocaleDateString('ru-RU');
-                return `
-                <div style="padding:10px 0;border-bottom:1px solid #eee;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span><strong>№${o.id}</strong> · ${date}</span>
-                        <span style="color:${st.color};font-size:13px;font-weight:600">${st.text}</span>
-                    </div>
-                    <div style="font-size:13px;color:#888;margin-top:4px;">${o.items_count} товар(а) · ${total}</div>
+    // ── Wishlist ──────────────────────────────────────────────────────────────
+    const wishEl   = document.getElementById('pfWishlist');
+    const wishData = await apiGet('api/wishlist.php', { action: 'list' });
+    const wishItems = wishData.success ? wishData.data : [];
+
+    if (wishEl) {
+        if (wishItems.length === 0) {
+            wishEl.innerHTML = `
+                <div class="pf__empty">
+                    <p>Список желаний пуст</p>
+                    <a href="/catalog.html" class="pf__view-all" style="margin-top:8px;display:inline-block;">Перейти в каталог</a>
                 </div>`;
-            }).join('') + `<a href="orders.html" style="display:block;margin-top:12px;font-size:13px;color:#000;text-decoration:underline;">Все заказы →</a>`;
+        } else {
+            wishEl.innerHTML = `<div class="pf__wish-grid">` +
+                wishItems.map(p => {
+                    const price = Number(p.price).toLocaleString('ru-RU') + ' ₽';
+                    const image = p.image || 'public/clava.png';
+                    return `
+                    <div class="pf__wish-item-wrap">
+                        <a href="/item.html?id=${p.id}" class="pf__wish-item">
+                            <div class="pf__wish-img">
+                                <img src="${image}" alt="${p.name}" onerror="this.src='public/clava.png'">
+                            </div>
+                            <p class="pf__wish-name">${p.name}</p>
+                            <p class="pf__wish-price">${price}</p>
+                        </a>
+                        <div class="pf__wish-actions">
+                            <button class="btn pf__wish-cart" data-id="${p.id}">В корзину</button>
+                            <button class="pf__wish-remove" data-id="${p.id}" title="Удалить">✕</button>
+                        </div>
+                    </div>`;
+                }).join('') +
+                `</div>`;
+
+            // Add to cart
+            wishEl.querySelectorAll('.pf__wish-cart').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    const result = await apiPost('api/cart.php?action=add', { product_id: btn.dataset.id, quantity: 1 });
+                    if (result.success) {
+                        btn.textContent = 'Добавлено ✓';
+                        setTimeout(() => { btn.textContent = 'В корзину'; btn.disabled = false; }, 1500);
+                    } else {
+                        btn.disabled = false;
+                    }
+                });
+            });
+
+            // Remove from wishlist
+            wishEl.querySelectorAll('.pf__wish-remove').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    await apiPost('api/wishlist.php?action=remove', { product_id: btn.dataset.id });
+                    btn.closest('.pf__wish-item-wrap').remove();
+                    // If grid is now empty
+                    if (!wishEl.querySelector('.pf__wish-item-wrap')) {
+                        wishEl.innerHTML = `<div class="pf__empty"><p>Список желаний пуст</p></div>`;
+                    }
+                });
+            });
         }
     }
 });

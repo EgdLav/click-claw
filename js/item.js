@@ -80,7 +80,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // ── Wishlist toggle ───────────────────────────────────────────────────
+        const wishBtn = document.querySelector('.wishlist-toggle');
+        if (wishBtn) {
+            // Check current state
+            const checkData = await apiGet('api/wishlist.php', { action: 'check', product_id: productId });
+            let inWishlist = checkData.success && checkData.data.in_wishlist;
+            updateWishBtn(wishBtn, inWishlist);
+
+            wishBtn.addEventListener('click', async () => {
+                const action = inWishlist ? 'remove' : 'add';
+                const result = await apiPost(`api/wishlist.php?action=${action}`, { product_id: productId });
+                if (result.success) {
+                    inWishlist = !inWishlist;
+                    updateWishBtn(wishBtn, inWishlist);
+                } else {
+                    window.location.href = 'login-modal.html';
+                }
+            });
+        }
+
     } catch (e) {
         console.error(e);
     }
 });
+
+function updateWishBtn(btn, inWishlist) {
+    btn.textContent = inWishlist ? '♥ В желаниях' : '♡ В желания';
+    btn.classList.toggle('wishlist-toggle--active', inWishlist);
+}

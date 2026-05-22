@@ -5685,3 +5685,685 @@ select.filter {
         transform: none;
     }
 }
+
+/* =====================================================
+   ПРОФИЛЬ — новый дизайн
+   ===================================================== */
+
+.pf {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    padding: 60px 0 80px;
+    align-items: start;
+}
+
+/* Сайдбар */
+.pf__sidebar {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0;
+    position: sticky;
+    top: 100px;
+}
+
+.pf__avatar-wrap {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #e8e8e8;
+    margin-bottom: 16px;
+}
+
+.pf__avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pf__name {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #000;
+}
+
+.pf__role {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 28px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pf__info-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid #f0f0f0;
+    margin-bottom: 28px;
+}
+
+.pf__info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+.pf__info-label {
+    font-size: 11px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pf__info-val {
+    font-size: 15px;
+    color: #111;
+    word-break: break-all;
+}
+
+.pf__sidebar-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pf__action-btn {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    transition: 0.2s;
+    font-family: "igra", sans-serif;
+}
+
+.pf__action-btn--outline {
+    background: #fff;
+    border: 1.5px solid #000;
+    color: #000;
+}
+
+.pf__action-btn--outline:hover {
+    background: #f5f5f5;
+}
+
+.pf__action-btn--dark {
+    background: #000;
+    color: #fff;
+}
+
+.pf__action-btn--dark:hover {
+    background: #222;
+}
+
+/* Основная часть */
+.pf__main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.pf__section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.pf__section-title {
+    font-size: 26px;
+    margin: 0;
+    color: #000;
+}
+
+.pf__view-all {
+    font-size: 14px;
+    color: #000;
+    text-decoration: none;
+    border-bottom: 1px solid #000;
+    padding-bottom: 1px;
+}
+
+.pf__orders {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pf__order-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow 0.2s;
+}
+
+.pf__order-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+.pf__order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pf__order-num {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin-right: 10px;
+}
+
+.pf__order-date {
+    font-size: 13px;
+    color: #888;
+}
+
+.pf__order-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.pf__order-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+}
+
+.pf__status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status--new        { background: #e3f0ff; color: #1565c0; }
+.status--processing { background: #fff3e0; color: #e65100; }
+.status--completed  { background: #e8f5e9; color: #2e7d32; }
+.status--cancelled  { background: #fce4ec; color: #c62828; }
+
+.pf__empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+    font-size: 16px;
+}
+
+.pf__loading {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+    font-size: 15px;
+}
+
+/* Адаптив профиля */
+@media (max-width: 1200px) {
+    .pf {
+        grid-template-columns: 260px 1fr;
+        gap: 28px;
+        padding: 40px 0 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pf {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 32px 0 48px;
+    }
+
+    .pf__sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 428px) {
+    .pf {
+        padding: 24px 0 40px;
+    }
+
+    .pf__sidebar {
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+
+    .pf__section-title {
+        font-size: 20px;
+    }
+
+    .pf__order-card {
+        padding: 16px;
+    }
+}
+
+/* =====================================================
+   ВИШЛИСТ — новый дизайн
+   ===================================================== */
+
+.wl {
+    padding: 60px 0 80px;
+}
+
+.wl__header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 20px;
+}
+
+.wl__title {
+    font-size: 40px;
+    margin: 0;
+    color: #000;
+}
+
+.wl__count {
+    font-size: 15px;
+    color: #888;
+    font-family: "inter", sans-serif;
+}
+
+.wl__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.wl__card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s;
+}
+
+.wl__card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+}
+
+.wl__card-img {
+    display: block;
+    background: #f8f8f8;
+    padding: 20px;
+    text-align: center;
+}
+
+.wl__card-img img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+}
+
+.wl__card-body {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 4px;
+}
+
+.wl__card-brand {
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.wl__card-name {
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.wl__card-name a {
+    color: #000;
+    text-decoration: none;
+}
+
+.wl__card-name a:hover {
+    text-decoration: underline;
+}
+
+.wl__card-cat {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 12px;
+}
+
+.wl__card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.wl__card-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+    font-family: "inter", sans-serif;
+}
+
+.wl__card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.wl__add-cart {
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.wl__remove {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.wl__remove:hover {
+    background: #fff0f0;
+    border-color: #f44336;
+    color: #f44336;
+}
+
+/* Кнопка вишлиста на странице товара */
+.wishlist-toggle {
+    background: #fff;
+    border: 1.5px solid #000;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: "igra", sans-serif;
+}
+
+.wishlist-toggle:hover,
+.wishlist-toggle--active {
+    background: #000;
+    color: #fff;
+}
+
+/* Адаптив вишлиста */
+@media (max-width: 1200px) {
+    .wl__grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .wl__title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 428px) {
+    .wl {
+        padding: 32px 0 48px;
+    }
+
+    .wl__header {
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 24px;
+    }
+
+    .wl__title {
+        font-size: 26px;
+    }
+
+    .wl__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .wl__card-body {
+        padding: 12px 14px 14px;
+    }
+
+    .wl__card-price {
+        font-size: 16px;
+    }
+
+    .wl__add-cart {
+        font-size: 12px;
+        padding: 7px 12px;
+    }
+}
+
+/* ── Wishlist preview on profile page ── */
+.pf__wish-preview {
+    min-height: 60px;
+}
+
+.pf__wish-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.pf__wish-item {
+    text-decoration: none;
+    color: #000;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.pf__wish-item:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.pf__wish-img {
+    background: #f8f8f8;
+    padding: 12px;
+    text-align: center;
+}
+
+.pf__wish-img img {
+    width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+}
+
+.pf__wish-name {
+    font-size: 13px;
+    padding: 8px 12px 4px;
+    margin: 0;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.pf__wish-price {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0 12px 12px;
+    margin: 0;
+    font-family: "inter", sans-serif;
+}
+
+@media (max-width: 1200px) {
+    .pf__wish-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pf__wish-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 428px) {
+    .pf__wish-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .pf__wish-img img {
+        max-height: 90px;
+    }
+}
+
+/* ── Profile sidebar nav (orders / favorite pages) ── */
+.pf__nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 20px 0;
+}
+
+.pf__nav-link {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #555;
+    font-size: 15px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.pf__nav-link:hover {
+    background: #f5f5f5;
+    color: #000;
+}
+
+.pf__nav-link--active {
+    background: #000;
+    color: #fff !important;
+}
+
+.pf__nav-link--active:hover {
+    background: #222;
+}
+
+/* ── Orders search ── */
+.ord__search-wrap {
+    flex-shrink: 0;
+}
+
+.ord__search {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    outline: none;
+    width: 200px;
+    font-family: "inter", sans-serif;
+    transition: border-color 0.2s;
+}
+
+.ord__search:focus {
+    border-color: #000;
+}
+
+.ord__card-addr {
+    font-size: 13px;
+    color: #888;
+    margin: 6px 0 0;
+}
+
+@media (max-width: 428px) {
+    .pf__section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .ord__search {
+        width: 100%;
+    }
+}
+
+/* ── Wishlist items on profile page (with action buttons) ── */
+.pf__wish-item-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.pf__wish-actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 12px 12px;
+    align-items: center;
+}
+
+.pf__wish-cart {
+    flex: 1;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.pf__wish-remove {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.pf__wish-remove:hover {
+    background: #fff0f0;
+    border-color: #f44336;
+    color: #f44336;
+}

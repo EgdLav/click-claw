@@ -87,6 +87,18 @@ $pdo->exec("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS wishlist (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id    INT UNSIGNED NOT NULL,
+        product_id INT UNSIGNED NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_wish (user_id, product_id),
+        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
 echo "✓ Таблицы созданы / проверены\n";
 
 // ── Wipe products & categories ────────────────────────────────────────────────
@@ -182,6 +194,33 @@ foreach ($products as [$name, $brand, $desc, $price, $image, $catName, $stock, $
 }
 
 echo "✓ Товаров добавлено: " . count($products) . "\n";
+
+// ── Wishlist table ────────────────────────────────────────────────────────────
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS wishlist (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id    INT UNSIGNED NOT NULL,
+        product_id INT UNSIGNED NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_wish (user_id, product_id),
+        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+// Seed wishlist for the first non-admin user (first 4 products)
+$testUser = $pdo->query("SELECT id FROM users WHERE role='user' LIMIT 1")->fetch();
+if ($testUser) {
+    $pdo->exec("DELETE FROM wishlist WHERE user_id = {$testUser['id']}");
+    $firstProducts = $pdo->query("SELECT id FROM products LIMIT 4")->fetchAll();
+    $stmtWish = $pdo->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
+    foreach ($firstProducts as $prod) {
+        $stmtWish->execute([$testUser['id'], $prod['id']]);
+    }
+    echo "✓ Вишлист заполнен для пользователя ID {$testUser['id']} (4 товара)\n";
+} else {
+    echo "✓ Вишлист: нет обычных пользователей, пропущено\n";
+}
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 echo "\n=== Готово ===\n";
