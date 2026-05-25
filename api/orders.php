@@ -54,36 +54,34 @@ function handleCreate(): void {
         jsonResponse(false, null, 'Заполните обязательные поля: имя и телефон', 400);
     }
 
-    if (empty($_SESSION['cart'])) {
+    $pdo    = getDB();
+    $userId = currentUserId();
+
+    // Read cart from DB
+    $cartStmt = $pdo->prepare("
+        SELECT c.product_id, c.quantity, p.name, p.price, p.stock
+        FROM cart c
+        JOIN products p ON c.product_id = p.id
+        WHERE c.user_id = ?
+    ");
+    $cartStmt->execute([$userId]);
+    $cartRows = $cartStmt->fetchAll();
+
+    if (empty($cartRows)) {
         jsonResponse(false, null, 'Корзина пуста', 400);
     }
 
-    $pdo = getDB();
-
-    // Get cart items with current prices
-    $ids          = array_keys($_SESSION['cart']);
-    $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $stmt         = $pdo->prepare("SELECT * FROM products WHERE id IN ({$placeholders})");
-    $stmt->execute($ids);
-    $products = $stmt->fetchAll();
-
-    if (empty($products)) {
-        jsonResponse(false, null, 'Товары не найдены', 400);
-    }
-
     // Calculate total
-    $total = 0;
+    $total      = 0;
     $orderItems = [];
-    foreach ($products as $product) {
-        $qty   = (int)($_SESSION['cart'][$product['id']] ?? 0);
-        if ($qty <= 0) continue;
-        $subtotal = (float)$product['price'] * $qty;
-        $total   += $subtotal;
+    foreach ($cartRows as $row) {
+        $subtotal    = (float)$row['price'] * (int)$row['quantity'];
+        $total      += $subtotal;
         $orderItems[] = [
-            'product_id' => $product['id'],
-            'name'       => $product['name'],
-            'price'      => (float)$product['price'],
-            'quantity'   => $qty,
+            'product_id' => $row['product_id'],
+            'name'       => $row['name'],
+            'price'      => (float)$row['price'],
+            'quantity'   => (int)$row['quantity'],
         ];
     }
 
@@ -92,7 +90,7 @@ function handleCreate(): void {
         INSERT INTO orders (user_id, name, phone, email, address, total)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([currentUserId(), $name, $phone, $email, $address, $total]);
+    $stmt->execute([$userId, $name, $phone, $email, $address, $total]);
     $orderId = (int)$pdo->lastInsertId();
 
     // Create order items
@@ -104,8 +102,8 @@ function handleCreate(): void {
         $itemStmt->execute([$orderId, $item['product_id'], $item['name'], $item['price'], $item['quantity']]);
     }
 
-    // Clear cart
-    $_SESSION['cart'] = [];
+    // Clear cart from DB
+    $pdo->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$userId]);
 
     jsonResponse(true, ['order_id' => $orderId, 'total' => $total]);
 }

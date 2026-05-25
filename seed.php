@@ -75,6 +75,18 @@ $pdo->exec("
 ");
 
 $pdo->exec("
+    CREATE TABLE IF NOT EXISTS cart (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id    INT UNSIGNED NOT NULL,
+        product_id INT UNSIGNED NOT NULL,
+        quantity   INT NOT NULL DEFAULT 1,
+        UNIQUE KEY unique_cart (user_id, product_id),
+        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+$pdo->exec("
     CREATE TABLE IF NOT EXISTS order_items (
         id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         order_id   INT UNSIGNED,
@@ -99,11 +111,22 @@ $pdo->exec("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS product_images (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        product_id INT UNSIGNED NOT NULL,
+        image      VARCHAR(300) NOT NULL,
+        sort_order INT NOT NULL DEFAULT 0,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
 echo "✓ Таблицы созданы / проверены\n";
 
 // ── Wipe products & categories ────────────────────────────────────────────────
 $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
 $pdo->exec("TRUNCATE TABLE order_items");
+$pdo->exec("TRUNCATE TABLE product_images");
 $pdo->exec("TRUNCATE TABLE products");
 $pdo->exec("TRUNCATE TABLE categories");
 $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
@@ -184,16 +207,77 @@ $products = [
 ];
 
 $stmtProd = $pdo->prepare("
-    INSERT INTO products (name, brand, description, price, image, category_id, stock, badge)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (name, brand, description, price, category_id, stock, badge)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 ");
 
 foreach ($products as [$name, $brand, $desc, $price, $image, $catName, $stock, $badge]) {
     $catId = $catMap[$catName] ?? null;
-    $stmtProd->execute([$name, $brand, $desc, $price, $image, $catId, $stock, $badge]);
+    $stmtProd->execute([$name, $brand, $desc, $price, $catId, $stock, $badge]);
 }
 
 echo "✓ Товаров добавлено: " . count($products) . "\n";
+
+// ── Product images (multiple per product) ─────────────────────────────────────
+// Map: category name => array of image sets (one set per product, cycling)
+$imageSets = [
+    'Клавиатуры' => [
+        ['/public/clava.png',      '/public/clava 2.png',      '/public/clava 3.png'],
+        ['/public/clava 2.png',    '/public/clava.png',        '/public/clava 3.png'],
+        ['/public/clava 3.png',    '/public/clava 2.png',      '/public/clava.png'],
+        ['/public/clava.png',      '/public/clava 3.png',      '/public/clava 2.png'],
+        ['/public/clava 2.png',    '/public/clava 3.png',      '/public/clava.png'],
+    ],
+    'Мыши' => [
+        ['/public/mouse.png',      '/public/mouse 2.png',      '/public/mouse 3.png'],
+        ['/public/mouse 2.png',    '/public/mouse 3.png',      '/public/mouse 4.png'],
+        ['/public/mouse 3.png',    '/public/mouse 4.png',      '/public/mouse 5.png'],
+        ['/public/mouse 4.png',    '/public/mouse 5.png',      '/public/mouse.png'],
+    ],
+    'Наушники' => [
+        ['/public/headphones.png',   '/public/headphones 2.png', '/public/headphones 3.png'],
+        ['/public/headphones 2.png', '/public/headphones 3.png', '/public/headphones 4.png'],
+        ['/public/headphones 3.png', '/public/headphones 4.png', '/public/headphones 5.png'],
+    ],
+    'Микрофоны' => [
+        ['/public/mouse.png',      '/public/mouse 2.png',      '/public/mouse 3.png'],
+        ['/public/mouse 4.png',    '/public/mouse 5.png',      '/public/mouse.png'],
+    ],
+    'Коврики' => [
+        ['/public/mouse 2.png',    '/public/mouse 3.png',      '/public/mouse.png'],
+        ['/public/mouse 4.png',    '/public/mouse 5.png',      '/public/mouse 2.png'],
+    ],
+    'Веб-камеры' => [
+        ['/public/monitor.png',    '/public/monitor 2.png',    '/public/monitor 3.png'],
+        ['/public/monitor 2.png',  '/public/monitor 3.png',    '/public/monitor 4.png'],
+    ],
+    'Кастом' => [
+        ['/public/clava.png',      '/public/clava 2.png',      '/public/clava 3.png'],
+        ['/public/clava 2.png',    '/public/clava 3.png',      '/public/clava.png'],
+    ],
+    'Прочее' => [
+        ['/public/monitor 4.png',  '/public/monitor 5.png',    '/public/monitor.png'],
+        ['/public/monitor 5.png',  '/public/monitor.png',      '/public/monitor 2.png'],
+    ],
+];
+
+$stmtImg  = $pdo->prepare("INSERT INTO product_images (product_id, image, sort_order) VALUES (?, ?, ?)");
+$allProds = $pdo->query("SELECT p.id, c.name AS cat FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id ASC")->fetchAll();
+
+// Track index per category to cycle through sets
+$catIndex = [];
+foreach ($allProds as $prod) {
+    $cat  = $prod['cat'];
+    $sets = $imageSets[$cat] ?? [['/public/clava.png', '/public/clava.png', '/public/clava.png']];
+    $idx  = $catIndex[$cat] ?? 0;
+    $imgs = $sets[$idx % count($sets)];
+    $catIndex[$cat] = $idx + 1;
+
+    foreach ($imgs as $order => $img) {
+        $stmtImg->execute([$prod['id'], $img, $order]);
+    }
+}
+echo "✓ Изображения товаров добавлены (3 на каждый)\n";
 
 // ── Wishlist table ────────────────────────────────────────────────────────────
 $pdo->exec("

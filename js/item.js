@@ -18,17 +18,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const p = data.data;
-        const image = p.image || './public/clava-big.png';
+        const images = (p.images && p.images.length > 0) ? p.images : [p.image || './public/clava.png'];
         const price = Number(p.price).toLocaleString('ru-RU') + ' ₽';
 
         document.title = p.name;
 
-        const mainImg = document.querySelector('.main-image img');
-        if (mainImg) { mainImg.src = image; mainImg.alt = p.name; }
+        // ── Gallery ───────────────────────────────────────────────────────────
+        const mainImg    = document.querySelector('.main-image img');
+        const thumbsWrap = document.querySelector('.thumbnails');
 
-        document.querySelectorAll('.thumbnails img').forEach(img => {
-            img.src = image; img.alt = p.name;
-        });
+        if (mainImg) {
+            mainImg.src = images[0];
+            mainImg.alt = p.name;
+        }
+
+        if (thumbsWrap) {
+            thumbsWrap.innerHTML = images.map((src, i) => `
+                <img src="${src}" alt="${p.name}" class="${i === 0 ? 'active' : ''}"
+                     onerror="this.src='./public/clava.png'">
+            `).join('');
+
+            thumbsWrap.querySelectorAll('img').forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                    if (mainImg) mainImg.src = thumb.src;
+                    thumbsWrap.querySelectorAll('img').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                });
+            });
+        }
 
         const titleEl = document.querySelector('.product-title-3');
         if (titleEl) titleEl.textContent = p.name;

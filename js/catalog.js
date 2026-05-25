@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── Render one product card ───────────────────────────────────────────────
     function renderCard(p) {
-        const image = p.image || 'public/mouse.png';
+        const image = p.image || 'public/clava.png';
         const badge = p.badge ? `<div class="product-badge">${p.badge}</div>` : '';
         const price = Number(p.price).toLocaleString('ru-RU') + ' ₽';
         return `
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${badge}
             <div class="product-image">
                 <a href="item.html?id=${p.id}">
-                    <img src="${image}" alt="${p.name}" onerror="this.src='public/mouse.png'">
+                    <img src="${image}" alt="${p.name}" onerror="this.src='public/clava.png'">
                 </a>
             </div>
             <div class="product-info">

@@ -96,12 +96,12 @@
                         <h2 class="form-title">Данные покупателя</h2>
                         <div class="form-row">
                             <div class="input-container">
-                                <label>Телефон</label>
-                                <input type="text">
+                                <label>Телефон *</label>
+                                <input type="tel" id="orderPhone" placeholder="+7 (___) ___-__-__">
                             </div>
                             <div class="input-container">
-                                <label>Почта</label>
-                                <input type="email">
+                                <label>Почта *</label>
+                                <input type="email" id="orderEmail" placeholder="example@mail.ru">
                             </div>
                         </div>
                     </div>
@@ -110,26 +110,26 @@
                         <h2 class="form-title">Доставка по адресу</h2>
                         <div class="form-row">
                             <div class="input-container">
-                                <label>Город</label>
-                                <input type="text">
+                                <label>Город *</label>
+                                <input type="text" id="orderCity" placeholder="Казань">
                             </div>
                             <div class="input-container">
-                                <label>Улица</label>
-                                <input type="text">
+                                <label>Улица *</label>
+                                <input type="text" id="orderStreet" placeholder="ул. Пушкина">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="input-container">
-                                <label>Дом</label>
-                                <input type="text">
+                                <label>Дом *</label>
+                                <input type="text" id="orderHouse" placeholder="1">
                             </div>
                             <div class="input-container">
-                                <label>Квартира</label>
-                                <input type="text">
+                                <label>Подъезд *</label>
+                                <input type="text" id="orderEntrance" placeholder="2">
                             </div>
                             <div class="input-container">
-                                <label>Квартира</label>
-                                <input type="text">
+                                <label>Квартира *</label>
+                                <input type="text" id="orderApt" placeholder="42">
                             </div>
                         </div>
                     </div>
@@ -334,6 +334,16 @@
     <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/make-order.js"></script>
+
+    <!-- Success modal -->
+    <div id="orderSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:48px 40px;max-width:440px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <div style="font-size:56px;margin-bottom:16px;">✓</div>
+            <h2 style="font-size:24px;margin:0 0 12px;">Заказ успешно оформлен!</h2>
+            <p style="color:#666;font-size:15px;margin:0 0 32px;line-height:1.5;">Спасибо за покупку. Мы свяжемся с вами в ближайшее время для подтверждения заказа.</p>
+            <a href="/profile.html" class="btn" style="display:inline-block;padding:14px 40px;">Мои заказы</a>
+        </div>
+    </div>
 </body>
 
 </html>

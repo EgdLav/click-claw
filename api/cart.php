@@ -1,7 +1,7 @@
 <?php
 /**
  * Cart API: get, add, update, remove, clear
- * Cart is stored in $_SESSION['cart'] as [product_id => quantity]
+ * Cart is stored in DB table `cart` (user_id, product_id, quantity)
  */
 ob_start();
 
@@ -11,10 +11,21 @@ require_once __DIR__ . '/../includes/auth_check.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Create cart table if not exists
+getDB()->exec("
+    CREATE TABLE IF NOT EXISTS cart (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id    INT UNSIGNED NOT NULL,
+        product_id INT UNSIGNED NOT NULL,
+        quantity   INT NOT NULL DEFAULT 1,
+        UNIQUE KEY unique_cart (user_id, product_id),
+        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
 $action = getGetField('action') ?: getPostField('action');
-if (empty($action)) {
-    $action = 'get';
-}
+if (empty($action)) $action = 'get';
 
 switch ($action) {
     case 'get':
@@ -44,32 +55,36 @@ switch ($action) {
 }
 
 function getCartItems(): array {
-    if (empty($_SESSION['cart'])) {
-        return [];
-    }
+    if (!isLoggedIn()) return [];
 
-    $pdo        = getDB();
-    $ids        = array_keys($_SESSION['cart']);
-    $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $stmt       = $pdo->prepare("SELECT * FROM products WHERE id IN ({$placeholders})");
-    $stmt->execute($ids);
-    $products   = $stmt->fetchAll();
+    $pdo  = getDB();
+    $stmt = $pdo->prepare("
+        SELECT c.product_id, c.quantity,
+               p.name, p.brand, p.price, p.stock,
+               (SELECT pi.image FROM product_images pi
+                WHERE pi.product_id = p.id
+                ORDER BY pi.sort_order ASC LIMIT 1) AS image
+        FROM cart c
+        JOIN products p ON c.product_id = p.id
+        WHERE c.user_id = ?
+        ORDER BY c.id ASC
+    ");
+    $stmt->execute([currentUserId()]);
+    $rows = $stmt->fetchAll();
 
     $items = [];
-    foreach ($products as $product) {
-        $qty     = (int)($_SESSION['cart'][$product['id']] ?? 0);
+    foreach ($rows as $row) {
         $items[] = [
-            'product_id' => (int)$product['id'],
-            'name'       => $product['name'],
-            'brand'      => $product['brand'],
-            'price'      => (float)$product['price'],
-            'image'      => $product['image'],
-            'stock'      => (int)$product['stock'],
-            'quantity'   => $qty,
-            'subtotal'   => round((float)$product['price'] * $qty, 2),
+            'product_id' => (int)$row['product_id'],
+            'name'       => $row['name'],
+            'brand'      => $row['brand'],
+            'price'      => (float)$row['price'],
+            'image'      => $row['image'] ?? null,
+            'stock'      => (int)$row['stock'],
+            'quantity'   => (int)$row['quantity'],
+            'subtotal'   => round((float)$row['price'] * (int)$row['quantity'], 2),
         ];
     }
-
     return $items;
 }
 
@@ -94,27 +109,30 @@ function handleAdd(): void {
     $productId = (int)($_POST['product_id'] ?? 0);
     $qty       = max(1, (int)($_POST['quantity'] ?? 1));
 
-    if (!$productId) {
-        jsonResponse(false, null, 'Не указан ID товара', 400);
-    }
+    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
 
-    // Verify product exists
     $pdo  = getDB();
     $stmt = $pdo->prepare("SELECT id, stock FROM products WHERE id = ?");
     $stmt->execute([$productId]);
     $product = $stmt->fetch();
 
-    if (!$product) {
-        jsonResponse(false, null, 'Товар не найден', 404);
-    }
+    if (!$product) jsonResponse(false, null, 'Товар не найден', 404);
 
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
+    $userId = currentUserId();
 
-    $current = (int)($_SESSION['cart'][$productId] ?? 0);
-    $newQty  = min($current + $qty, (int)$product['stock']);
-    $_SESSION['cart'][$productId] = $newQty;
+    // Get current quantity
+    $cur = $pdo->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+    $cur->execute([$userId, $productId]);
+    $existing = $cur->fetchColumn();
+
+    $newQty = min(($existing ?: 0) + $qty, (int)$product['stock']);
+
+    // INSERT or UPDATE
+    $pdo->prepare("
+        INSERT INTO cart (user_id, product_id, quantity)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE quantity = ?
+    ")->execute([$userId, $productId, $newQty, $newQty]);
 
     $items = getCartItems();
     jsonResponse(true, [
@@ -132,14 +150,19 @@ function handleUpdate(): void {
     $productId = (int)($_POST['product_id'] ?? 0);
     $qty       = (int)($_POST['quantity'] ?? 0);
 
-    if (!$productId) {
-        jsonResponse(false, null, 'Не указан ID товара', 400);
-    }
+    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
+
+    $pdo    = getDB();
+    $userId = currentUserId();
 
     if ($qty <= 0) {
-        unset($_SESSION['cart'][$productId]);
+        $pdo->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?")->execute([$userId, $productId]);
     } else {
-        $_SESSION['cart'][$productId] = $qty;
+        $pdo->prepare("
+            INSERT INTO cart (user_id, product_id, quantity)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE quantity = ?
+        ")->execute([$userId, $productId, $qty, $qty]);
     }
 
     $items = getCartItems();
@@ -156,11 +179,10 @@ function handleRemove(): void {
     }
 
     $productId = (int)($_POST['product_id'] ?? 0);
-    if (!$productId) {
-        jsonResponse(false, null, 'Не указан ID товара', 400);
-    }
+    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
 
-    unset($_SESSION['cart'][$productId]);
+    $pdo = getDB();
+    $pdo->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?")->execute([currentUserId(), $productId]);
 
     $items = getCartItems();
     jsonResponse(true, [
@@ -171,14 +193,15 @@ function handleRemove(): void {
 }
 
 function handleClear(): void {
-    $_SESSION['cart'] = [];
+    getDB()->prepare("DELETE FROM cart WHERE user_id = ?")->execute([currentUserId()]);
     jsonResponse(true, ['items' => [], 'total' => 0, 'count' => 0]);
 }
 
 function handleCount(): void {
-    $count = 0;
-    if (!empty($_SESSION['cart'])) {
-        $count = array_sum($_SESSION['cart']);
+    if (!isLoggedIn()) {
+        jsonResponse(true, ['count' => 0]);
     }
-    jsonResponse(true, ['count' => $count]);
+    $stmt = getDB()->prepare("SELECT COALESCE(SUM(quantity), 0) FROM cart WHERE user_id = ?");
+    $stmt->execute([currentUserId()]);
+    jsonResponse(true, ['count' => (int)$stmt->fetchColumn()]);
 }

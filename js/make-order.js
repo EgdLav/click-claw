@@ -8,11 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Hide the "login to continue" subtitle since user is logged in
     const subtitle = document.querySelector('.cart-subtitle');
     if (subtitle) subtitle.style.display = 'none';
 
-    // ── Load cart items into the order summary ────────────────────────────────
+    // ── Load cart ─────────────────────────────────────────────────────────────
     const cartData = await apiGet('api/cart.php', { action: 'get' });
     if (!cartData.success || cartData.data.items.length === 0) {
         window.location.href = 'cart.html';
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const { items, total } = cartData.data;
 
-    // Render cart items in the order
+    // Render cart items
     const cartCard = document.querySelector('.cart-card');
     if (cartCard) {
         cartCard.innerHTML = items.map(item => {
@@ -51,47 +50,131 @@ document.addEventListener('DOMContentLoaded', async () => {
         el.textContent = formattedTotal;
     });
 
-    // ── Wire up the pay button ────────────────────────────────────────────────
-    const payBtn = document.querySelector('.make button.btn, #make_pay_card ~ .summary-card .btn, .summary-card .btn');
-    if (payBtn) {
-        payBtn.addEventListener('click', async () => {
-            // Collect form fields
-            const phone   = document.querySelector('input[type="text"]')?.value.trim() || '';
-            const email   = document.querySelector('input[type="email"]')?.value.trim() || '';
-
-            // Address fields: city, street, house, apartment
-            const textInputs = [...document.querySelectorAll('.form-section:last-of-type input[type="text"]')];
-            const city     = textInputs[0]?.value.trim() || '';
-            const street   = textInputs[1]?.value.trim() || '';
-            const house    = textInputs[2]?.value.trim() || '';
-            const apt      = textInputs[3]?.value.trim() || '';
-            const address  = [city, street, house, apt].filter(Boolean).join(', ');
-
-            const user = authData.data;
-            const name = user.user_name;
-
-            if (!phone) {
-                alert('Введите номер телефона');
-                return;
-            }
-
-            payBtn.disabled = true;
-            payBtn.textContent = 'Оформляем...';
-
-            const result = await apiPost('api/orders.php?action=create', {
-                name,
-                phone,
-                email,
-                address
-            });
-
-            if (result.success) {
-                window.location.href = `orders.html`;
-            } else {
-                alert(result.error || 'Ошибка оформления заказа');
-                payBtn.disabled = false;
-                payBtn.textContent = 'Оплатить';
-            }
-        });
+    // ── Validation helper ─────────────────────────────────────────────────────
+    function showError(input, message) {
+        input.style.borderColor = '#e53935';
+        let err = input.parentElement.querySelector('.field-error');
+        if (!err) {
+            err = document.createElement('span');
+            err.className = 'field-error';
+            err.style.cssText = 'color:#e53935;font-size:12px;margin-top:4px;display:block;';
+            input.parentElement.appendChild(err);
+        }
+        err.textContent = message;
     }
+
+    function clearError(input) {
+        input.style.borderColor = '';
+        const err = input.parentElement.querySelector('.field-error');
+        if (err) err.remove();
+    }
+
+    function validatePhone(val) {
+        return /^[\d\s\+\-\(\)]{7,20}$/.test(val);
+    }
+
+    // Clear errors on input
+    document.querySelectorAll('.input-container input').forEach(inp => {
+        inp.addEventListener('input', () => clearError(inp));
+    });
+
+    // ── Pay button ────────────────────────────────────────────────────────────
+    const payBtn = document.querySelector('.summary-card .btn');
+    if (!payBtn) return;
+
+    payBtn.addEventListener('click', async () => {
+        // Collect values
+        const phoneEl    = document.getElementById('orderPhone');
+        const emailEl    = document.getElementById('orderEmail');
+        const cityEl     = document.getElementById('orderCity');
+        const streetEl   = document.getElementById('orderStreet');
+        const houseEl    = document.getElementById('orderHouse');
+        const entranceEl = document.getElementById('orderEntrance');
+        const aptEl      = document.getElementById('orderApt');
+
+        let valid = true;
+
+        // Required fields
+        if (!phoneEl.value.trim()) {
+            showError(phoneEl, 'Введите номер телефона'); valid = false;
+        } else if (!validatePhone(phoneEl.value.trim())) {
+            showError(phoneEl, 'Некорректный номер телефона'); valid = false;
+        } else {
+            clearError(phoneEl);
+        }
+
+        // Email — required, validate format
+        if (!emailEl || !emailEl.value.trim()) {
+            showError(emailEl, 'Введите адрес почты'); valid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+            showError(emailEl, 'Некорректный адрес почты'); valid = false;
+        } else {
+            clearError(emailEl);
+        }
+
+        if (!cityEl.value.trim()) {
+            showError(cityEl, 'Введите город'); valid = false;
+        } else { clearError(cityEl); }
+
+        if (!streetEl.value.trim()) {
+            showError(streetEl, 'Введите улицу'); valid = false;
+        } else { clearError(streetEl); }
+
+        if (!houseEl.value.trim()) {
+            showError(houseEl, 'Введите номер дома'); valid = false;
+        } else { clearError(houseEl); }
+
+        // Подъезд — required, only digits
+        if (!entranceEl || !entranceEl.value.trim()) {
+            showError(entranceEl, 'Введите подъезд'); valid = false;
+        } else if (!/^\d+$/.test(entranceEl.value.trim())) {
+            showError(entranceEl, 'Только цифры'); valid = false;
+        } else {
+            clearError(entranceEl);
+        }
+
+        // Квартира — required, only digits
+        if (!aptEl || !aptEl.value.trim()) {
+            showError(aptEl, 'Введите квартиру'); valid = false;
+        } else if (!/^\d+$/.test(aptEl.value.trim())) {
+            showError(aptEl, 'Только цифры'); valid = false;
+        } else {
+            clearError(aptEl);
+        }
+
+        if (!valid) return;
+
+        // Build address string
+        let address = `${cityEl.value.trim()}, ${streetEl.value.trim()}, д. ${houseEl.value.trim()}`;
+        if (entranceEl.value.trim()) address += `, подъезд ${entranceEl.value.trim()}`;
+        if (aptEl.value.trim())      address += `, кв. ${aptEl.value.trim()}`;
+
+        payBtn.disabled = true;
+        payBtn.textContent = 'Оформляем...';
+
+        const result = await apiPost('api/orders.php?action=create', {
+            name:    authData.data.user_name,
+            phone:   phoneEl.value.trim(),
+            email:   emailEl?.value.trim() || '',
+            address: address
+        });
+
+        if (result.success) {
+            // Show success modal
+            const modal = document.getElementById('orderSuccessModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                // Close on backdrop click
+                modal.addEventListener('click', e => {
+                    if (e.target === modal) window.location.href = 'profile.html';
+                });
+            } else {
+                window.location.href = 'profile.html';
+            }
+        } else {
+            alert(result.error || 'Ошибка оформления заказа');
+            payBtn.disabled = false;
+            payBtn.textContent = 'Оплатить';
+        }
+    });
 });

@@ -88,7 +88,10 @@ function handleList(): void {
     }
 
     $sql = "
-        SELECT p.*, c.name AS category_name
+        SELECT p.*, c.name AS category_name,
+               (SELECT pi.image FROM product_images pi
+                WHERE pi.product_id = p.id
+                ORDER BY pi.sort_order ASC LIMIT 1) AS image
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
         {$whereClause}
@@ -122,6 +125,19 @@ function handleGet(): void {
         jsonResponse(false, null, 'Товар не найден', 404);
     }
 
+    // Fetch all images from product_images table
+    $imgStmt = $pdo->prepare("
+        SELECT image FROM product_images
+        WHERE product_id = ?
+        ORDER BY sort_order ASC
+    ");
+    $imgStmt->execute([$id]);
+    $images = $imgStmt->fetchAll(\PDO::FETCH_COLUMN);
+
+    // First image is the main one
+    $product['image']  = $images[0] ?? null;
+    $product['images'] = $images;
+
     jsonResponse(true, $product);
 }
 
@@ -130,14 +146,13 @@ function handleCreate(): void {
         jsonResponse(false, null, 'Метод не поддерживается', 405);
     }
 
-    $name       = sanitize($_POST['name'] ?? '');
-    $brand      = sanitize($_POST['brand'] ?? '');
+    $name        = sanitize($_POST['name'] ?? '');
+    $brand       = sanitize($_POST['brand'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
-    $price      = (float)($_POST['price'] ?? 0);
-    $image      = sanitize($_POST['image'] ?? '');
-    $categoryId = (int)($_POST['category_id'] ?? 0);
-    $stock      = (int)($_POST['stock'] ?? 0);
-    $badge      = sanitize($_POST['badge'] ?? '');
+    $price       = (float)($_POST['price'] ?? 0);
+    $categoryId  = (int)($_POST['category_id'] ?? 0);
+    $stock       = (int)($_POST['stock'] ?? 0);
+    $badge       = sanitize($_POST['badge'] ?? '');
 
     if (empty($name) || $price <= 0 || !$categoryId) {
         jsonResponse(false, null, 'Заполните обязательные поля: название, цена, категория', 400);
@@ -145,11 +160,20 @@ function handleCreate(): void {
 
     $pdo  = getDB();
     $stmt = $pdo->prepare("
-        INSERT INTO products (name, brand, description, price, image, category_id, stock, badge)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO products (name, brand, description, price, category_id, stock, badge)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$name, $brand, $description, $price, $image, $categoryId, $stock, $badge ?: null]);
+    $stmt->execute([$name, $brand, $description, $price, $categoryId, $stock, $badge ?: null]);
     $id = (int)$pdo->lastInsertId();
+
+    // Handle images if provided (comma-separated paths)
+    $imagesRaw = sanitize($_POST['images'] ?? '');
+    if ($imagesRaw) {
+        $imgStmt = $pdo->prepare("INSERT INTO product_images (product_id, image, sort_order) VALUES (?, ?, ?)");
+        foreach (array_values(array_filter(explode(',', $imagesRaw))) as $order => $img) {
+            $imgStmt->execute([$id, trim($img), $order]);
+        }
+    }
 
     jsonResponse(true, ['id' => $id]);
 }
@@ -159,15 +183,14 @@ function handleUpdate(): void {
         jsonResponse(false, null, 'Метод не поддерживается', 405);
     }
 
-    $id         = (int)($_POST['id'] ?? 0);
-    $name       = sanitize($_POST['name'] ?? '');
-    $brand      = sanitize($_POST['brand'] ?? '');
+    $id          = (int)($_POST['id'] ?? 0);
+    $name        = sanitize($_POST['name'] ?? '');
+    $brand       = sanitize($_POST['brand'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
-    $price      = (float)($_POST['price'] ?? 0);
-    $image      = sanitize($_POST['image'] ?? '');
-    $categoryId = (int)($_POST['category_id'] ?? 0);
-    $stock      = (int)($_POST['stock'] ?? 0);
-    $badge      = sanitize($_POST['badge'] ?? '');
+    $price       = (float)($_POST['price'] ?? 0);
+    $categoryId  = (int)($_POST['category_id'] ?? 0);
+    $stock       = (int)($_POST['stock'] ?? 0);
+    $badge       = sanitize($_POST['badge'] ?? '');
 
     if (!$id || empty($name) || $price <= 0 || !$categoryId) {
         jsonResponse(false, null, 'Заполните обязательные поля', 400);
@@ -176,10 +199,20 @@ function handleUpdate(): void {
     $pdo  = getDB();
     $stmt = $pdo->prepare("
         UPDATE products
-        SET name=?, brand=?, description=?, price=?, image=?, category_id=?, stock=?, badge=?
+        SET name=?, brand=?, description=?, price=?, category_id=?, stock=?, badge=?
         WHERE id=?
     ");
-    $stmt->execute([$name, $brand, $description, $price, $image, $categoryId, $stock, $badge ?: null, $id]);
+    $stmt->execute([$name, $brand, $description, $price, $categoryId, $stock, $badge ?: null, $id]);
+
+    // Replace images if provided
+    $imagesRaw = sanitize($_POST['images'] ?? '');
+    if ($imagesRaw) {
+        $pdo->prepare("DELETE FROM product_images WHERE product_id = ?")->execute([$id]);
+        $imgStmt = $pdo->prepare("INSERT INTO product_images (product_id, image, sort_order) VALUES (?, ?, ?)");
+        foreach (array_values(array_filter(explode(',', $imagesRaw))) as $order => $img) {
+            $imgStmt->execute([$id, trim($img), $order]);
+        }
+    }
 
     jsonResponse(true, ['id' => $id]);
 }
