@@ -6480,3 +6480,35 @@ select.filter {
         font-size: 20px;
     }
 }
+
+/* ── Profile edit modal ── */
+#editProfileModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+#editProfileModal .modal-content {
+    position: relative;
+    max-width: 480px;
+    width: 90%;
+}
+
+#editProfileModal .search-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* Profile grid tab panels */
+.profile__grid {
+    padding-top: 40px;
+    padding-bottom: 80px;
+}

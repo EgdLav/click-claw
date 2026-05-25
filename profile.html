@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль — КЛИК-КЛАВ</title>
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
 </head>
 <body>
     <header class="header">
@@ -63,56 +64,121 @@
 
     <main>
         <div class="container">
-            <div class="pf">
+            <section class="profile">
 
-                <!-- Левая колонка: карточка пользователя -->
-                <aside class="pf__sidebar">
-                    <div class="pf__avatar-wrap">
-                        <img src="./public/avatar.png" alt="Аватар" class="pf__avatar">
-                    </div>
-                    <h2 class="pf__name" id="pfName">—</h2>
-                    <p class="pf__role" id="pfRole">Покупатель</p>
-
-                    <div class="pf__info-list">
-                        <div class="pf__info-item">
-                            <span class="pf__info-label">Email</span>
-                            <span class="pf__info-val" id="pfEmail">—</span>
+                <!-- Top section: avatar / welcome / last order -->
+                <div class="profile__top">
+                    <div class="profile__user-card">
+                        <div class="profile__avatar">
+                            <img src="./public/avatar.png" alt="Аватар">
                         </div>
-                        <div class="pf__info-item">
-                            <span class="pf__info-label">Телефон</span>
-                            <span class="pf__info-val" id="pfPhone">—</span>
-                        </div>
-                        <div class="pf__info-item">
-                            <span class="pf__info-label">Дата регистрации</span>
-                            <span class="pf__info-val" id="pfDate">—</span>
-                        </div>
+                        <button class="profile__edit-link" id="openEditModal">
+                            РЕДАКТИРОВАТЬ ПРОФИЛЬ <img src="./public/edit_profile.png" alt="">
+                        </button>
+                        <div class="profile__divider"></div>
+                        <button class="profile__logout-btn" id="pfLogout">Выйти</button>
                     </div>
 
-                    <div class="pf__sidebar-actions">
-                        <button class="pf__action-btn pf__action-btn--dark" id="pfLogout">Выйти</button>
-                    </div>
-                </aside>
+                    <div class="profile__vertical-line"></div>
 
-                <!-- Правая колонка: заказы + вишлист -->
-                <div class="pf__main">
-                    <div class="pf__section-header">
-                        <h3 class="pf__section-title">Мои заказы</h3>
+                    <div class="profile__welcome">
+                        <h1 id="pfWelcome">Привет!</h1>
+                        <p>Добро пожаловать в ваш аккаунт. Проверяйте заказы, обновляйте список желаний и редактируйте свои данные — все в одном месте!</p>
                     </div>
+
+                    <div class="profile__last-order" id="pfLastOrder">
+                        <h3>ВАШ ПОСЛЕДНИЙ ЗАКАЗ</h3>
+                        <div class="order-empty-card">
+                            <p>В данный момент у вас нет заказов.</p>
+                            <p>Оформите свой заказ и он появится здесь.</p>
+                            <a href="/catalog.html" class="order-search-link">
+                                ПЕРЕЙТИ В КАТАЛОГ <img src="./public/search.png" alt="">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <nav class="profile__tabs">
+                    <a href="#orders"  class="tab-item active" data-tab="orders">Мои заказы</a>
+                    <a href="#wishlist" class="tab-item" data-tab="wishlist">Список желаний</a>
+                    <a href="#info"    class="tab-item" data-tab="info">Мои данные</a>
+                </nav>
+
+                <!-- Tab: Orders -->
+                <div class="profile__grid" id="tab-orders">
                     <div id="pfOrders" class="pf__orders">
                         <div class="pf__loading">Загрузка...</div>
                     </div>
+                </div>
 
-                    <div class="pf__section-header" style="margin-top:48px;">
-                        <h3 class="pf__section-title">Список желаний</h3>
-                    </div>
+                <!-- Tab: Wishlist -->
+                <div class="profile__grid" id="tab-wishlist" style="display:none;">
                     <div id="pfWishlist" class="pf__wish-preview">
                         <div class="pf__loading">Загрузка...</div>
                     </div>
                 </div>
 
-            </div>
+                <!-- Tab: User info -->
+                <div class="profile__grid" id="tab-info" style="display:none;">
+                    <div class="settings-content" style="width:100%;">
+                        <div class="profile-info-section">
+                            <div class="profile-header">
+                                <h2>Профиль</h2>
+                                <button class="edit-btn" id="openEditModal2">
+                                    РЕДАКТИРОВАТЬ <img src="./public/edit_profile.png" alt="">
+                                </button>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Имя</span>
+                                    <span class="info-value" id="infoName">—</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Email</span>
+                                    <span class="info-value" id="infoEmail">—</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Телефон</span>
+                                    <span class="info-value" id="infoPhone">—</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Дата регистрации</span>
+                                    <span class="info-value" id="infoDate">—</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
         </div>
     </main>
+
+    <!-- Edit profile modal -->
+    <div id="editProfileModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <button class="search-close" id="closeEditModal"><img src="./public/close.svg" alt=""></button>
+            <h2 class="modal-title">Редактировать профиль</h2>
+            <form class="auth-form" id="editProfileForm">
+                <div class="input-group">
+                    <label>Имя *</label>
+                    <input type="text" id="editFirstName" placeholder="Имя" required>
+                </div>
+                <div class="input-group">
+                    <label>Фамилия</label>
+                    <input type="text" id="editLastName" placeholder="Фамилия">
+                </div>
+                <div class="input-group">
+                    <label>Телефон</label>
+                    <input type="tel" id="editPhone" placeholder="+7 (___) ___-__-__">
+                </div>
+                <div class="auth-button">
+                    <button type="submit" class="btn-login">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <footer class="footer">
         <div class="footer container">

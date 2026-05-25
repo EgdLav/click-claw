@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать профиль модалка</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <div class="header__logo">
+                <img class="logo-img" loading="lazy" alt="Logo" src="./public/Frame 4.svg" />
+            </div>
+
+            <button class="burger-btn" aria-label="Открыть меню">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="header__nav">
+                    <a href="#" class="nav-link">Главная</a>
+
+                    <div class="nav-dropdown">
+                        <span class="nav-link">Каталог</span>
+                        <img class="icon-arrow" alt="" src="./public/arrow.png" />
+                        <ul class="dropdown-menu">
+                            <li><a href="/catalog.html">Все товары</a></li>
+                            <li><a href="/catalog.html">Клавиатуры</a></li>
+                            <li><a href="/catalog.html">Мыши</a></li>
+                            <li><a href="/catalog.html">Наушники</a></li>
+                            <li><a href="/catalog.html">Прочее</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <span class="nav-link">Прочее</span>
+                        <img class="icon-arrow" alt="" src="./public/arrow.png" />
+                        <ul class="dropdown-menu">
+                            <li><a href="/about_us.html">О нас</a></li>
+                            <li><a href="/blog.html">Блог</a></li>
+                            <li><a href="/contacts.html">Контакты</a></li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class="mobile-actions">
+                    <a href="/register-modal.html" class="mobile-action-link">
+                        <img src="./public/acount.svg" alt="Аккаунт" />
+                        <span>Войти / Регистрация</span>
+                    </a>
+                    <a href="/cart.html" class="mobile-action-link">
+                        <img src="./public/cart.svg" alt="Корзина" />
+                        <span>Корзина</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="/search-modal.html" class="action-btn mobile-search">
+                <img src="./public/loop.svg" alt="Поиск" />
+            </a>
+
+            <div class="header__actions desktop-actions">
+                <a href="/search-modal.html" class="action-btn">
+                    <img src="./public/loop.svg" alt="Поиск" />
+                </a>
+                <a href="/register-modal.html" class="action-btn">
+                    <img src="./public/acount.svg" alt="Аккаунт" />
+                </a>
+                <a href="/cart.html" class="action-btn">
+                    <img src="./public/cart.svg" alt="Корзина" />
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <img class="hero__bg" alt="" src="./public/bg-header.png" />
+        <a href="catalog.html" class="hero__cta">
+            <spaan>Купить сейчас</span>
+                <img class="cta-arrow" alt="" src="./public/arrow.png" />
+        </a>
+    </section>
+
+    <div class="marquee">
+        <div class="marquee__content">
+            <p> Уважаемый покупатель! Добро пожаловать в официальный магазин КЛИК-КЛАВ! Уважаемый покупатель! Добро
+                пожаловать в официальный магазин КЛИК-КЛАВ Уважаемый покупатель! Добро пожаловать в официальный
+                магазин КЛИК-КЛАВ! </p>
+        </div>
+    </div>
+
+    <main>
+        <section id="cart" class="">
+
+            <h2 class="title_pop container">Популярные товары</h2>
+
+            <div class="slider-container">
+                <button class="slider-btn slider-prev">
+                    <img src="./public/arrow-slider.png" alt="Назад">
+                </button>
+                <div class="slider-wrapper container">
+                    <div class="items-grid">
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+
+                        <div class="item_card">
+                            <img src="./public/clava.png" alt="">
+                            <div class="colors-flex">
+                                <div class="color black"></div>
+                                <div class="color white"></div>
+                                <div class="color grey"></div>
+                            </div>
+                            <h3>Alto Keys K98M</h3>
+                            <p>10 999 ₽</p>
+                            <a class="btn" href="/cart.html">В корзину</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="slider-btn slider-next">
+                    <img src="./public/arrow-slider-right.png" alt="Вперед">
+                </button>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2 class="title">Для чего подходят</h2>
+
+            <div class="appointment_wrapper">
+                <div class="appointment_card" style="background-image: url('../public/business.png');">
+                    <div class="card_content">
+                        <h3>Бизнес</h3>
+                    </div>
+                </div>
+
+                <div class="appointment_card" style="background-image: url('../public/education.jpg')">
+                    <div class="card_content">
+                        <h3>Образование</h3>
+                    </div>
+                </div>
+
+                <div class="appointment_card" style="background-image: url('../public/games.jpg')">
+                    <div class="card_content">
+                        <h3>Игры</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="blog_see">
+            <div class="container">
+                <div class="blog_see-wrapper">
+
+                    <div class="blog_see-1">
+                        <div class="overlay"></div>
+                        <a href="/blog.html" class="link_blog">Смотреть блог</a>
+                    </div>
+
+                    <div class="blog_see-right">
+                        <div class="blog_card blog_see-2">
+                        </div>
+
+                        <div class="blog_see-bottom">
+                            <div class="blog_card blog_see-3">
+                            </div>
+                            <div class="blog_card blog_see-4">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2 class="title">Поиск по категориям</h2>
+
+            <div class="categories_wrapper">
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-1.png" alt="Клавиатуры">
+                    <p>Клавиатуры</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-2.png" alt="Мыши">
+                    <p>Мыши</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-3.png" alt="Наушники">
+                    <p>Наушники</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-4.png" alt="Микрофоны">
+                    <p>Микрофоны</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-5.png" alt="Кастом">
+                    <p>Кастом</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-6.png" alt="Коврики">
+                    <p>Коврики</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-7.png" alt="Веб-камеры">
+                    <p>Веб-камеры</p>
+                </a>
+                <a href="./catalog.html" class="category_card">
+                    <img src="../public/cat-8.png" alt="Прочее">
+                    <p>Прочее</p>
+                </a>
+        </section>
+
+        <section class="why">
+            <div class="container">
+                <div class="why_wrapper">
+                    <div class="why_wrapper-1">
+                        <h2 class="title">Почему покупают на Клик-Клав</h2>
+                        <p>Мы хотим, чтобы покупка периферии была быстрой, выгодной и безопасной. Покупайте у нас
+                            напрямую и получайте удовольствие от сервиса: быстрая доставка по России, удобные способы
+                            оплаты, честная гарантия и специальные предложения только для подписчиков Click-Klav.</p>
+                    </div>
+
+                    <div class="why_wrapper-2">
+                        <div class="why-card">
+                            <img src="./public/why-1.png" alt="">
+                            <h3>Долями или
+                                в рассрочку</h3>
+                            <p>Покупайте комплектующие и периферию без лишней нагрузки на бюджет. Мы поддерживаем
+                                сервисы «Долями», «Яндекс.Сплит» и беспроцентную рассрочку от банков-партнеров.
+                                Выбирайте комфортный ритм платежей.</p>
+                        </div>
+
+                        <div class="why-card">
+                            <img src="./public/why-2.png" alt="">
+                            <h3>Бесплатная доставка</h3>
+                            <p>Забудьте о дополнительных расходах. Бесплатная доставка по всей России для заказов от 3
+                                000 ₽. Отправляем СДЭКом, Почтой России и в пункты выдачи заказов.</p>
+                        </div>
+
+                        <div class="why-card">
+                            <img src="./public/why-3.png" alt="">
+                            <h3>Скидка 10%
+                                за подписку</h3>
+                            <p>Студенты, IT-специалисты и постоянные клиенты получают персональную скидку 10% на первый
+                                заказ. Подпишитесь на рассылку, чтобы не пропускать акции и эксклюзивные промокоды.</p>
+                        </div>
+
+                        <div class="why-card">
+                            <img src="./public/why-4.png" alt="">
+                            <h3>Гарантия и
+                                тест-драйв</h3>
+                            <p>Никаких рисков. Мы даем 14 дней на тестирование техники в домашних условиях. Если
+                                устройство вам не подошло — оформите возврат просто и без лишних вопросов.</p>
+                        </div>
+
+                        <div class="why-card">
+                            <img src="./public/why-5.png" alt="">
+                            <h3>Поддержка знает своё дело</h3>
+                            <p>Наши специалисты помогут разобраться в деталях. Свяжитесь с нами через по телефону —
+                                получите быстрый ответ и рекомендацию, основанную на реальном опыте.</p>
+                        </div>
+
+                        <div class="why-card">
+                            <img src="./public/why-6.png" alt="">
+                            <h3>Эксклюзивы
+                                для своих</h3>
+                            <p>Только у нас — специальные расцветки, редкие модели клавиатур и лимитированные серии,
+                                которые вы не найдете на маркетплейсах. Подпишитесь, чтобы первыми получать доступ к
+                                новинкам и подаркам к заказу.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer container">
+
+            <div class="footer_top">
+
+                <div class="footer_col logo_col">
+                    <div class="footer_logo">
+                        <img src="./public/Frame 4.svg" alt="">
+                    </div>
+                    <p class="footer_address">
+                        420111, Республика Татарстан, г. Казань,<br>
+                        ул. Владимира Кулагина, д. 1
+                    </p>
+                    <p class="footer_contact">
+                        Почта: <a href="mailto:info@klik-klav.ru">info@klik-klav.ru</a><br><br>
+                        ИНН: 165912345678
+                    </p>
+
+                    <div class="social_icons">
+                        <a href=""><img src="../public/vk.png" alt="VK"></a>
+                        <a href=""><img src="../public/ok.png" alt="OK"></a>
+                        <a href=""><img src="../public/tg.png" alt="TG"></a>
+                        <a href=""><img src="../public/dzen.png" alt="Dzen"></a>
+                        <a href=""><img src="../public/rutube.png" alt="Rutube"></a>
+
+
+
+
+                    </div>
+                </div>
+
+                <div class="footer_col">
+                    <h3>Узнать больше</h3>
+                    <ul>
+                        <li><a href="/about_us.html">О нас</a></li>
+                        <li><a href="#">Политика гарантии</a></li>
+                        <li><a href="#">Политика возврата</a></li>
+                        <li><a href="#">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer_col">
+                    <h3>Поддержка</h3>
+                    <ul>
+                        <li><a href="mailto:opt@klik-klav.ru">Отдел продаж: opt@klik-klav.ru</a></li>
+                        <li><a href="mailto:return@klik-klav.ru">Отдел претензий: return@klik-klav.ru</a></li>
+                    </ul>
+                    <div class="work_hours">
+                        <p>Режим работы:</p>
+                        <p>Колл-центр:<br>
+                            -Пн–Пт: 09:00 – 21:00<br>
+                            -Сб–Вс: 10:00 – 18:00</p>
+                        <p>Служба поддержки:<br>
+                            -Ежедневно с 09:00 до 22:00</p>
+                    </div>
+                </div>
+
+                <div class="footer_col newsletter_col">
+                    <h3>Подпишись на рассылку</h3>
+                    <p class="newsletter_text">Зарегистрируйтесь, чтобы первыми узнавать о новинках, распродажах,
+                        эксклюзивном контенте и многом другом!</p>
+
+                    <form class="newsletter_form">
+                        <input type="email" placeholder="Введите адрес эл. почты" required>
+                        <button type="submit">Подписаться <img src="" alt=""></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer_bottom">
+                <p class="copyright">©КЛИК-КЛАВ. Все права защищены.</p>
+
+                <div class="payment_methods">
+                    <img src="../public/tbank.png" alt="Т-Банк">
+                    <img src="../public/yoomoney.png" alt="ЮMoney">
+                    <img src="../public/mir.png" alt="МИР">
+                    <img src="../public/sbp.png" alt="СБП">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <main>
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <a href="/index.html" class="search-close"><img src="./public/close.svg" alt=""></a>
+                <h2 class="modal-title">Редактировать профиль</h2>
+
+                <form class="auth-form">
+                    <div class="input-group">
+                        <label>Имя</label>
+                        <input type="text" placeholder="Имя" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Фамилия</label>
+                        <input type="text" placeholder="Фамилия" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Город</label>
+                        <input type="text" placeholder="Город" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Телефон</label>
+                        <input type="tel" placeholder="Телефон" required>
+                    </div>
+                    <div class="auth-button">
+                        <button type="submit" class="btn-login address-btn"><a href="/profile-settings.html">Сохранить
+                                профиль</a></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const burgerBtn = document.querySelector('.burger-btn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navOverlay = document.getElementById('navOverlay');
+
+            function openMenu() {
+                burgerBtn.classList.add('active');
+                mobileMenu.classList.add('active');
+                navOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                burgerBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+
+                document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+
+            burgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu.classList.contains('active')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+
+            navOverlay.addEventListener('click', closeMenu);
+
+            document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                dropdown.addEventListener('click', function (e) {
+                    // Работает только на мобилке
+                    if (window.innerWidth <= 428) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const isCurrentlyOpen = this.classList.contains('open');
+
+                        document.querySelectorAll('.nav-dropdown.open').forEach(item => {
+                            item.classList.remove('open');
+                        });
+
+                        if (!isCurrentlyOpen) {
+                            this.classList.add('open');
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.dropdown-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    setTimeout(closeMenu, 150);
+                });
+            });
+
+            document.querySelectorAll('.mobile-menu .nav-link:not(.nav-dropdown .nav-link)').forEach(link => {
+                link.addEventListener('click', () => {
+                    closeMenu();
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 428) {
+                    closeMenu();
+                }
+            });
+
+            let touchStartX = 0;
+            mobileMenu.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+
+            mobileMenu.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                if (touchStartX - touchEndX > 80) {
+                    closeMenu();
+                }
+            }, { passive: true });
+        });
+    </script>
+</body>
+
+</html>
