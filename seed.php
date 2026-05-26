@@ -159,7 +159,7 @@ $adminExists = $pdo->query("SELECT COUNT(*) FROM users WHERE role='admin'")->fet
 if (!$adminExists) {
     $hash = password_hash('admin123', PASSWORD_BCRYPT);
     $pdo->prepare("INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'admin')")
-        ->execute(['Администратор', 'admin@klik-klav.ru', '+7 (999) 000-00-00', $hash]);
+        ->execute(['Администратор', 'admin@gmail.com', '+7 (999) 000-00-00', $hash]);
     echo "✓ Администратор создан: admin@klik-klav.ru / admin123\n";
 } else {
     echo "✓ Администратор уже существует\n";

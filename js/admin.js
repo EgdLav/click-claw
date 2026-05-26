@@ -1,8 +1,24 @@
 /**
  * Admin panel — shared JS for all admin pages
- * Handles auth check, stats, logout
+ * Handles auth check, stats, logout, active sidebar
  */
 document.addEventListener('DOMContentLoaded', async () => {
+
+    // ── Active sidebar link ───────────────────────────────────────────────────
+    const currentPage = window.location.pathname.split('/').pop();
+    const pageToLink = {
+        'admin.html':              'admin.html',
+        'admin-products.html':     'admin-products.html',
+        'admin-add-product.html':  'admin-products.html',
+        'admin-edit-product.html': 'admin-products.html',
+        'admin-categories.html':   'admin-categories.html',
+        'admin-orders.html':       'admin-orders.html',
+    };
+    const activeHref = pageToLink[currentPage] || 'admin.html';
+    document.querySelectorAll('.admin__sidebar-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === activeHref) link.classList.add('active');
+    });
 
     // ── Auth: must be admin ───────────────────────────────────────────────────
     const authData = await apiGet('../api/auth.php', { action: 'status' });
