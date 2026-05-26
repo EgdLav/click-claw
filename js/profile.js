@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             wishEl.innerHTML = `
                 <div class="pf__empty">
                     <p>Список желаний пуст</p>
-                    <a href="/catalog.html" style="margin-top:8px;display:inline-block;text-decoration:underline;">Перейти в каталог</a>
+                    <a href="/catalog.html" class="btn" style="margin-top:16px;display:inline-block;">Перейти в каталог</a>
                 </div>`;
             return;
         }
