@@ -1,7 +1,9 @@
+// оформление заказа
+
 document.addEventListener('DOMContentLoaded', async () => {
     initAuthHeader();
 
-    // ── Auth check ────────────────────────────────────────────────────────────
+    // проверка авторизации
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         window.location.href = 'login-modal.html';
@@ -11,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subtitle = document.querySelector('.cart-subtitle');
     if (subtitle) subtitle.style.display = 'none';
 
-    // ── Load cart ─────────────────────────────────────────────────────────────
+    // загрузка корзины
     const cartData = await apiGet('api/cart.php', { action: 'get' });
     if (!cartData.success || cartData.data.items.length === 0) {
         window.location.href = 'cart.html';
@@ -20,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const { items, total } = cartData.data;
 
-    // Render cart items
+    // отображение товаров в заказе
     const cartCard = document.querySelector('.cart-card');
     if (cartCard) {
         cartCard.innerHTML = items.map(item => {
@@ -44,13 +46,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('<hr style="margin:8px 0;border:none;border-top:1px solid #eee;">');
     }
 
-    // Update totals
+    // итоговая сумма
     const formattedTotal = Number(total).toLocaleString('ru-RU') + ' ₽';
     document.querySelectorAll('.total-row span:last-child, .final-total span:last-child').forEach(el => {
         el.textContent = formattedTotal;
     });
 
-    // ── Validation helper ─────────────────────────────────────────────────────
+    // показ ошибки поля
     function showError(input, message) {
         input.style.borderColor = '#e53935';
         let err = input.parentElement.querySelector('.field-error');
@@ -69,21 +71,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (err) err.remove();
     }
 
-    function validatePhone(val) {
-        return /^[\d\s\+\-\(\)]{7,20}$/.test(val);
-    }
-
-    // Clear errors on input
     document.querySelectorAll('.input-container input').forEach(inp => {
         inp.addEventListener('input', () => clearError(inp));
     });
 
-    // ── Pay button ────────────────────────────────────────────────────────────
+    // кнопка оплаты
     const payBtn = document.querySelector('.summary-card .btn');
     if (!payBtn) return;
 
     payBtn.addEventListener('click', async () => {
-        // Collect values
         const phoneEl    = document.getElementById('orderPhone');
         const emailEl    = document.getElementById('orderEmail');
         const cityEl     = document.getElementById('orderCity');
@@ -94,17 +90,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let valid = true;
 
-        // Required fields
         if (!phoneEl.value.trim()) {
             showError(phoneEl, 'Введите номер телефона'); valid = false;
-        } else if (!validatePhone(phoneEl.value.trim())) {
+        } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(phoneEl.value.trim())) {
             showError(phoneEl, 'Некорректный номер телефона'); valid = false;
         } else {
             clearError(phoneEl);
         }
 
-        // Email — required, validate format
-        if (!emailEl || !emailEl.value.trim()) {
+        if (!emailEl?.value.trim()) {
             showError(emailEl, 'Введите адрес почты'); valid = false;
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
             showError(emailEl, 'Некорректный адрес почты'); valid = false;
@@ -112,20 +106,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearError(emailEl);
         }
 
-        if (!cityEl.value.trim()) {
-            showError(cityEl, 'Введите город'); valid = false;
-        } else { clearError(cityEl); }
+        if (!cityEl.value.trim()) { showError(cityEl, 'Введите город'); valid = false; }
+        else clearError(cityEl);
 
-        if (!streetEl.value.trim()) {
-            showError(streetEl, 'Введите улицу'); valid = false;
-        } else { clearError(streetEl); }
+        if (!streetEl.value.trim()) { showError(streetEl, 'Введите улицу'); valid = false; }
+        else clearError(streetEl);
 
-        if (!houseEl.value.trim()) {
-            showError(houseEl, 'Введите номер дома'); valid = false;
-        } else { clearError(houseEl); }
+        if (!houseEl.value.trim()) { showError(houseEl, 'Введите номер дома'); valid = false; }
+        else clearError(houseEl);
 
-        // Подъезд — required, only digits
-        if (!entranceEl || !entranceEl.value.trim()) {
+        if (!entranceEl?.value.trim()) {
             showError(entranceEl, 'Введите подъезд'); valid = false;
         } else if (!/^\d+$/.test(entranceEl.value.trim())) {
             showError(entranceEl, 'Только цифры'); valid = false;
@@ -133,8 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearError(entranceEl);
         }
 
-        // Квартира — required, only digits
-        if (!aptEl || !aptEl.value.trim()) {
+        if (!aptEl?.value.trim()) {
             showError(aptEl, 'Введите квартиру'); valid = false;
         } else if (!/^\d+$/.test(aptEl.value.trim())) {
             showError(aptEl, 'Только цифры'); valid = false;
@@ -144,7 +133,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!valid) return;
 
-        // Build address string
         let address = `${cityEl.value.trim()}, ${streetEl.value.trim()}, д. ${houseEl.value.trim()}`;
         if (entranceEl.value.trim()) address += `, подъезд ${entranceEl.value.trim()}`;
         if (aptEl.value.trim())      address += `, кв. ${aptEl.value.trim()}`;
@@ -160,11 +148,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (result.success) {
-            // Show success modal
             const modal = document.getElementById('orderSuccessModal');
             if (modal) {
                 modal.style.display = 'flex';
-                // Close on backdrop click
                 modal.addEventListener('click', e => {
                     if (e.target === modal) window.location.href = 'profile.html';
                 });

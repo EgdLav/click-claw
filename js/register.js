@@ -1,3 +1,5 @@
+// регистрация
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('.auth-form');
     if (!form) return;
@@ -32,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (data.success) {
-                // Store login state for client-side checks
                 localStorage.setItem('user', JSON.stringify(data.data));
                 window.location.href = 'profile.html';
             } else {

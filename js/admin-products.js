@@ -1,19 +1,13 @@
+// управление товарами в админке
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── Active sidebar link ───────────────────────────────────────────────────
-    const currentPage = window.location.pathname.split('/').pop();
-    document.querySelectorAll('.admin__sidebar-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === currentPage) link.classList.add('active');
-    });
-
-    const tbody      = document.querySelector('.admin__table tbody');
-    const titleEl    = document.querySelector('.admin__table-title');
+    const tbody       = document.querySelector('.admin__table tbody');
+    const titleEl     = document.querySelector('.admin__table-title');
     const searchInput = document.querySelector('.admin__table-header input');
 
     let allProducts = [];
 
-    // ── Load products ─────────────────────────────────────────────────────────
     async function loadProducts() {
         const data = await apiGet('../api/products.php', { action: 'list' });
         allProducts = data.success ? data.data : [];
@@ -47,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </tr>`;
         }).join('');
 
-        // Delete buttons
+        // удаление товара
         tbody.querySelectorAll('[data-id]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 if (!confirm('Удалить товар?')) return;
@@ -61,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ── Search ────────────────────────────────────────────────────────────────
+    // поиск по таблице
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             const q = searchInput.value.trim().toLowerCase();

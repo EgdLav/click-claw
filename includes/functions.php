@@ -1,14 +1,11 @@
 <?php
-/**
- * Shared utility functions for КЛИК-КЛАВ
- */
+// общие вспомогательные функции
 
-// Prevent PHP warnings/notices from corrupting JSON responses
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
+// отправка JSON-ответа
 function jsonResponse(bool $success, $data = null, string $error = '', int $code = 200): void {
-    // Discard any accidental output (PHP notices, warnings, etc.)
     if (ob_get_level() > 0) {
         ob_end_clean();
     }
@@ -48,14 +45,10 @@ function validateRequired(array $fields, array $data): array {
 }
 
 function formatPrice(float $price): string {
-    return number_format($price, 0, ',', ' ') . ' ₽';
+    return number_format($price, 0, '.', ' ') . ' ₽';
 }
 
-function setCorsHeaders(): void {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        exit;
-    }
+function isAjax(): bool {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }

@@ -1,14 +1,15 @@
+// поиск товаров
+
 document.addEventListener('DOMContentLoaded', () => {
     initAuthHeader();
 
-    const searchInput  = document.querySelector('.search-field');
-    const clearBtn     = document.querySelector('.search-clear-btn');
-    const resultsEl    = document.querySelector('.search-results');
-    const viewAllLink  = document.querySelector('.search-view-all');
+    const searchInput = document.querySelector('.search-field');
+    const clearBtn    = document.querySelector('.search-clear-btn');
+    const resultsEl   = document.querySelector('.search-results');
+    const viewAllLink = document.querySelector('.search-view-all');
 
     if (!searchInput || !resultsEl) return;
 
-    // ── Debounced search ──────────────────────────────────────────────────────
     let debounceTimer;
 
     searchInput.addEventListener('input', () => {
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const q = searchInput.value.trim();
 
         if (!q) {
-            showEmpty();
+            resultsEl.innerHTML = '';
             if (viewAllLink) viewAllLink.href = 'catalog.html';
             return;
         }
@@ -24,16 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
         debounceTimer = setTimeout(() => doSearch(q), 300);
     });
 
-    // Clear button
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
-            showEmpty();
+            resultsEl.innerHTML = '';
             searchInput.focus();
         });
     }
 
-    // Enter → go to catalog with search query
+    // Enter — переход в каталог с поиском
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const q = searchInput.value.trim();
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const products = data.data.slice(0, 5); // show max 5 results
+            const products = data.data.slice(0, 5);
             resultsEl.innerHTML = products.map(p => {
                 const price = Number(p.price).toLocaleString('ru-RU') + ' ₽';
                 const img   = p.image || 'public/mouse.png';
@@ -75,10 +75,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showEmpty() {
-        resultsEl.innerHTML = '';
-    }
-
-    // Auto-focus the search input
     searchInput.focus();
 });

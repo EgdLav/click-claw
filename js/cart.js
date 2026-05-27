@@ -1,3 +1,5 @@
+// корзина
+
 document.addEventListener('DOMContentLoaded', async () => {
     initAuthHeader();
 
@@ -7,10 +9,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subtitle    = document.querySelector('.cart-subtitle');
     const sidebar     = document.querySelector('.cart-sidebar');
 
-    // Immediately hide subtitle if localStorage says logged in (no flicker)
+    // скрываем подсказку если уже залогинен (без мерцания)
     if (subtitle && isUserLoggedIn()) subtitle.style.display = 'none';
 
-    // Confirm with server — source of truth
+    // проверяем авторизацию на сервере
     const authData = await apiGet('api/auth.php', { action: 'status' });
     const loggedIn = authData.success && authData.data.logged_in;
     if (subtitle) subtitle.style.display = loggedIn ? 'none' : 'block';
@@ -20,12 +22,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data.success) return;
 
         const { items, total } = data.data;
-
         const cartCard = document.querySelector('.cart-card');
         if (!cartCard) return;
 
         if (items.length === 0) {
-            // Empty cart — hide sidebar, show empty state
             if (sidebar) sidebar.style.display = 'none';
             if (checkoutBtn) {
                 checkoutBtn.style.pointerEvents = 'none';
@@ -39,17 +39,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Has items — show sidebar and re-enable checkout button
         if (sidebar) sidebar.style.display = '';
         if (checkoutBtn) {
             checkoutBtn.style.pointerEvents = '';
             checkoutBtn.style.opacity = '';
         }
 
-        // Re-query totals after sidebar is visible
+        const formatted = Number(total).toLocaleString('ru-RU') + ' ₽';
         const tEl = document.querySelector('.total-row span:last-child');
         const fEl = document.querySelector('.final-total span:last-child');
-        const formatted = Number(total).toLocaleString('ru-RU') + ' ₽';
         if (tEl) tEl.textContent = formatted;
         if (fEl) fEl.textContent = formatted;
 
@@ -108,12 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     loadCart();
 
-    // ── "You may also like" — load random products from API ──────────────────
+    // блок "Вам также может понравиться"
     const likeGrid = document.getElementById('grid_cart');
     if (likeGrid) {
         const data = await apiGet('api/products.php', { action: 'list' });
         if (data.success && data.data.length > 0) {
-            // Shuffle and take 6
             const shuffled = data.data.sort(() => Math.random() - 0.5).slice(0, 6);
             likeGrid.innerHTML = shuffled.map(p => {
                 const image = p.image || 'public/clava.png';

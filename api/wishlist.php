@@ -1,7 +1,5 @@
 <?php
-/**
- * Wishlist API: list, add, remove, check
- */
+// список желаний: список, добавление, удаление, проверка
 ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
@@ -10,7 +8,7 @@ require_once __DIR__ . '/../includes/auth_check.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Create table if not exists
+// создание таблицы если не существует
 $pdo = getDB();
 $pdo->exec("
     CREATE TABLE IF NOT EXISTS wishlist (
@@ -28,22 +26,10 @@ $action = getGetField('action') ?: getPostField('action');
 if (empty($action)) $action = 'list';
 
 switch ($action) {
-    case 'list':
-        requireAuth();
-        handleList();
-        break;
-    case 'add':
-        requireAuth();
-        handleAdd();
-        break;
-    case 'remove':
-        requireAuth();
-        handleRemove();
-        break;
-    case 'check':
-        // No requireAuth — guests just get false
-        handleCheck();
-        break;
+    case 'list':   requireAuth(); handleList();   break;
+    case 'add':    requireAuth(); handleAdd();    break;
+    case 'remove': requireAuth(); handleRemove(); break;
+    case 'check':  handleCheck(); break; // гости получают false
     default:
         jsonResponse(false, null, 'Неизвестное действие', 400);
 }
@@ -66,13 +52,11 @@ function handleAdd(): void {
     $productId = (int)($_POST['product_id'] ?? 0);
     if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
 
-    $pdo  = getDB();
-    // Check product exists
+    $pdo   = getDB();
     $check = $pdo->prepare("SELECT id FROM products WHERE id = ?");
     $check->execute([$productId]);
     if (!$check->fetch()) jsonResponse(false, null, 'Товар не найден', 404);
 
-    // INSERT IGNORE — safe if already exists
     $stmt = $pdo->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
     $stmt->execute([currentUserId(), $productId]);
 
@@ -94,7 +78,6 @@ function handleCheck(): void {
     $productId = (int)getGetField('product_id');
     if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
 
-    // Not logged in — just return false
     if (!isLoggedIn()) {
         jsonResponse(true, ['in_wishlist' => false]);
     }

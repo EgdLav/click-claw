@@ -1,7 +1,5 @@
 <?php
-/**
- * Categories API: list, create, update, delete
- */
+// категории: список, создание, обновление, удаление
 ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
@@ -11,26 +9,13 @@ require_once __DIR__ . '/../includes/auth_check.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $action = getGetField('action') ?: getPostField('action');
-if (empty($action)) {
-    $action = 'list';
-}
+if (empty($action)) $action = 'list';
 
 switch ($action) {
-    case 'list':
-        handleList();
-        break;
-    case 'create':
-        requireAdmin();
-        handleCreate();
-        break;
-    case 'update':
-        requireAdmin();
-        handleUpdate();
-        break;
-    case 'delete':
-        requireAdmin();
-        handleDelete();
-        break;
+    case 'list':   handleList();   break;
+    case 'create': requireAdmin(); handleCreate(); break;
+    case 'update': requireAdmin(); handleUpdate(); break;
+    case 'delete': requireAdmin(); handleDelete(); break;
     default:
         jsonResponse(false, null, 'Неизвестное действие', 400);
 }

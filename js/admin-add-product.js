@@ -1,26 +1,11 @@
+// добавление и редактирование товара в админке
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     const form      = document.querySelector('.admin__form');
     const catSelect = form?.querySelector('select[name="category_id"]');
 
-    // ── Active sidebar link ───────────────────────────────────────────────────
-    const currentPage = window.location.pathname.split('/').pop();
-    document.querySelectorAll('.admin__sidebar-link').forEach(link => {
-        link.classList.remove('active');
-        const href = link.getAttribute('href');
-        if (href && href.includes(currentPage)) {
-            link.classList.add('active');
-        }
-    });
-    // Fallback: mark Товары active on add/edit pages
-    if (currentPage === 'admin-add-product.html' || currentPage === 'admin-edit-product.html') {
-        document.querySelectorAll('.admin__sidebar-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === 'admin-products.html') link.classList.add('active');
-        });
-    }
-
-    // ── Populate category dropdown from DB ────────────────────────────────────
+    // загрузка категорий в select
     if (catSelect) {
         const data = await apiGet('../api/categories.php', { action: 'list' });
         if (data.success) {
@@ -29,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Check if editing (URL has ?id=) ───────────────────────────────────────
+    // проверяем режим редактирования
     const urlParams = new URLSearchParams(window.location.search);
     const editId    = urlParams.get('id');
 
@@ -53,7 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (descEl)  descEl.value  = p.description || '';
             if (catSelect) catSelect.value = p.category_id || '';
 
-            // Show current images
             const images = p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : []);
             renderImagePreviews(images);
 
@@ -62,8 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Image preview management ──────────────────────────────────────────────
-    let currentImages = []; // paths already in DB
+    // превью изображений
+    let currentImages = [];
 
     function renderImagePreviews(images) {
         currentImages = images.slice();
@@ -86,8 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderImagePreviews(currentImages);
     };
 
-    // Handle new image path input
-    const addImageBtn = document.getElementById('addImageBtn');
+    const addImageBtn   = document.getElementById('addImageBtn');
     const newImageInput = document.getElementById('newImagePath');
     if (addImageBtn && newImageInput) {
         addImageBtn.addEventListener('click', () => {
@@ -99,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ── Form submit ───────────────────────────────────────────────────────────
+    // отправка формы
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -120,13 +103,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Сохраняем...'; }
 
-            // Images as comma-separated string
-            const imagesStr = currentImages.join(',');
+            const payload = {
+                name, brand, description: desc, price,
+                category_id: catId, stock, badge,
+                images: currentImages.join(',')
+            };
 
-            const payload = { name, brand, description: desc, price, category_id: catId, stock, badge, images: imagesStr };
-
-            let result;
             try {
+                let result;
                 if (editId) {
                     payload.id = editId;
                     result = await apiPost('../api/products.php?action=update', payload);
@@ -142,11 +126,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (err) {
                 alert('Ошибка соединения с сервером');
             } finally {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = editId ? 'Сохранить изменения' : 'Добавить товар'; }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editId ? 'Сохранить изменения' : 'Добавить товар';
+                }
             }
         });
 
-        // Delete button (edit mode only)
+        // кнопка удаления (только в режиме редактирования)
         const deleteBtn = form.querySelector('.admin__btn-danger[data-action="delete"]');
         if (deleteBtn && editId) {
             deleteBtn.addEventListener('click', async () => {

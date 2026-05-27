@@ -1,7 +1,9 @@
+// страница заказов
+
 document.addEventListener('DOMContentLoaded', async () => {
     initAuthHeader();
 
-    // ── Auth check ────────────────────────────────────────────────────────────
+    // проверка авторизации
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         localStorage.removeItem('user');
@@ -11,27 +13,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = authData.data;
 
-    // Update header link
     document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
         link.href = '/profile.html';
         const span = link.querySelector('span');
         if (span) span.textContent = user.user_name;
     });
 
-    // Fill sidebar name
     const pfName = document.getElementById('pfName');
     const pfRole = document.getElementById('pfRole');
     if (pfName) pfName.textContent = user.user_name;
     if (pfRole) pfRole.textContent = user.user_role === 'admin' ? 'Администратор' : 'Покупатель';
 
-    // Logout
     document.getElementById('pfLogout')?.addEventListener('click', async () => {
         await apiGet('api/auth.php', { action: 'logout' });
         localStorage.removeItem('user');
         window.location.href = 'index.html';
     });
 
-    // ── Status labels ─────────────────────────────────────────────────────────
     const statusLabels = {
         new:        { text: 'Новый',       cls: 'status--new' },
         processing: { text: 'В обработке', cls: 'status--processing' },
@@ -39,10 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         cancelled:  { text: 'Отменён',     cls: 'status--cancelled' },
     };
 
-    // ── Load orders ───────────────────────────────────────────────────────────
-    const listEl     = document.getElementById('ordList');
+    const listEl      = document.getElementById('ordList');
     const searchInput = document.getElementById('ordSearch');
-    let allOrders    = [];
+    let allOrders     = [];
 
     async function loadOrders() {
         const data = await apiGet('api/orders.php', { action: 'list' });
@@ -68,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const date  = new Date(o.created_at).toLocaleDateString('ru-RU', {
                 day: 'numeric', month: 'long', year: 'numeric'
             });
-            const addr  = o.address ? `<p class="ord__card-addr">${o.address}</p>` : '';
+            const addr = o.address ? `<p class="ord__card-addr">${o.address}</p>` : '';
             return `
             <div class="pf__order-card ord__card">
                 <div class="pf__order-top">
@@ -87,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('');
     }
 
-    // ── Search ────────────────────────────────────────────────────────────────
     searchInput?.addEventListener('input', () => {
         const q = searchInput.value.trim().toLowerCase();
         if (!q) { renderOrders(allOrders); return; }

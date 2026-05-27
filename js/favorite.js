@@ -1,7 +1,9 @@
+// список желаний
+
 document.addEventListener('DOMContentLoaded', async () => {
     initAuthHeader();
 
-    // ── Auth check ────────────────────────────────────────────────────────────
+    // проверка авторизации
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         window.location.href = 'login-modal.html';
@@ -10,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = authData.data;
 
-    // ── Fill sidebar ──────────────────────────────────────────────────────────
     const pfName = document.getElementById('pfName');
     const pfRole = document.getElementById('pfRole');
     if (pfName) pfName.textContent = user.user_name;
@@ -22,14 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'index.html';
     });
 
-    // Update header account link
     document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
         link.href = '/profile.html';
         const span = link.querySelector('span');
         if (span) span.textContent = user.user_name;
     });
 
-    // ── Wishlist ──────────────────────────────────────────────────────────────
     const grid    = document.getElementById('wlGrid');
     const countEl = document.getElementById('wlCount');
 
@@ -75,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`;
         }).join('');
 
-        // Add to cart
         grid.querySelectorAll('.wl__add-cart').forEach(btn => {
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
@@ -92,7 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Remove from wishlist
         grid.querySelectorAll('.wl__remove').forEach(btn => {
             btn.addEventListener('click', async () => {
                 await apiPost('api/wishlist.php?action=remove', { product_id: btn.dataset.id });

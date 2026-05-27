@@ -1,10 +1,8 @@
-/**
- * Admin panel — shared JS for all admin pages
- * Handles auth check, stats, logout, active sidebar
- */
+// админ-панель — общий скрипт для всех страниц
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── Active sidebar link ───────────────────────────────────────────────────
+    // активная ссылка в сайдбаре
     const currentPage = window.location.pathname.split('/').pop();
     const pageToLink = {
         'admin.html':              'admin.html',
@@ -20,14 +18,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (link.getAttribute('href') === activeHref) link.classList.add('active');
     });
 
-    // ── Auth: must be admin ───────────────────────────────────────────────────
+    // проверка прав администратора
     const authData = await apiGet('../api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in || authData.data.user_role !== 'admin') {
         window.location.href = '../login-modal.html';
         return;
     }
 
-    // ── Logout link ───────────────────────────────────────────────────────────
+    // выход
     document.querySelectorAll('.admin__sidebar-link.logout').forEach(link => {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -36,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // ── Load stats on dashboard ───────────────────────────────────────────────
+    // статистика на главной странице панели
     const statValues = document.querySelectorAll('.admin__stat-card-value');
     if (statValues.length >= 3) {
         try {
@@ -50,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const cats     = catData.success   ? catData.data   : [];
             const orders   = orderData.success ? orderData.data : [];
 
-            // Stat cards: товары, категории, заказы, выручка
             if (statValues[0]) statValues[0].textContent = products.length;
             if (statValues[1]) statValues[1].textContent = cats.length;
             if (statValues[2]) statValues[2].textContent = orders.length;
@@ -61,14 +58,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 statValues[3].textContent = revenue.toLocaleString('ru-RU') + ' ₽';
             }
 
-            // Recent orders table on dashboard
             renderRecentOrders(orders.slice(0, 5));
         } catch (e) {
-            console.error('Stats load error', e);
+            console.error(e);
         }
     }
 
-    // ── Recent orders table (dashboard only) ─────────────────────────────────
+    // таблица последних заказов (только на главной)
     function renderRecentOrders(orders) {
         const tbody = document.querySelector('.admin__table tbody');
         if (!tbody) return;
@@ -89,12 +85,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const st    = statusMap[o.status] || { label: o.status, cls: '' };
             const total = Number(o.total).toLocaleString('ru-RU') + ' ₽';
             const date  = new Date(o.created_at).toLocaleDateString('ru-RU');
-            const actions = (o.status === 'new') ? `
-                <button class="admin__btn admin__btn-sm admin__btn-success" data-id="${o.id}" data-status="processing">Принять</button>
-                <button class="admin__btn admin__btn-sm admin__btn-danger"  data-id="${o.id}" data-status="cancelled">Отклонить</button>
-            ` : (o.status === 'processing') ? `
-                <button class="admin__btn admin__btn-sm admin__btn-success" data-id="${o.id}" data-status="completed">Завершить</button>
-            ` : `<span style="color:#888;font-size:13px;">${st.label}</span>`;
+            let actions = '';
+            if (o.status === 'new') {
+                actions = `
+                    <button class="admin__btn admin__btn-sm admin__btn-success" data-id="${o.id}" data-status="processing">Принять</button>
+                    <button class="admin__btn admin__btn-sm admin__btn-danger"  data-id="${o.id}" data-status="cancelled">Отклонить</button>`;
+            } else if (o.status === 'processing') {
+                actions = `<button class="admin__btn admin__btn-sm admin__btn-success" data-id="${o.id}" data-status="completed">Завершить</button>`;
+            } else {
+                actions = `<span style="color:#888;font-size:13px;">${st.label}</span>`;
+            }
 
             return `<tr>
                 <td>#${o.id}</td>
@@ -106,18 +106,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             </tr>`;
         }).join('');
 
-        // Wire status buttons
         tbody.querySelectorAll('[data-status]').forEach(btn => {
             btn.addEventListener('click', () => updateOrderStatus(btn.dataset.id, btn.dataset.status, btn));
         });
     }
 
-    // ── Update order status ───────────────────────────────────────────────────
+    // обновление статуса заказа
     window.updateOrderStatus = async function(id, status, btn) {
         if (btn) btn.disabled = true;
         const result = await apiPost('../api/orders.php?action=update_status', { id, status });
         if (result.success) {
-            // Reload the page section
             location.reload();
         } else {
             alert(result.error || 'Ошибка');

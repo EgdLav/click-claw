@@ -1,7 +1,4 @@
-/**
- * Shared API helper — all fetch calls go through here
- * Uses relative URLs so it works on any domain/port (OpenServer, localhost, etc.)
- */
+// вспомогательные функции для fetch-запросов
 
 async function apiPost(endpoint, data) {
     const form = new FormData();
@@ -27,20 +24,23 @@ async function apiGet(endpoint, params = {}) {
     return res.json();
 }
 
-/**
- * Auth state — check once per page load and update header
- */
+// проверка авторизации из localStorage (быстрая, без запроса)
+function isUserLoggedIn() {
+    return !!localStorage.getItem('user');
+}
+
+// обновление шапки в зависимости от авторизации
 async function initAuthHeader() {
     try {
         const data = await apiGet('api/auth.php', { action: 'status' });
 
         if (data.success && data.data.logged_in) {
-            // Keep localStorage in sync
             localStorage.setItem('user', JSON.stringify(data.data));
 
             const user = data.data;
-            const accountLinks = document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]');
-            accountLinks.forEach(link => {
+
+            // меняем ссылки на профиль
+            document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
                 link.href = '/profile.html';
                 const span = link.querySelector('span');
                 if (span) span.textContent = user.user_name;
@@ -48,7 +48,7 @@ async function initAuthHeader() {
 
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                logoutBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'block';
                 logoutBtn.addEventListener('click', async () => {
                     await apiGet('api/auth.php', { action: 'logout' });
                     localStorage.removeItem('user');
@@ -56,35 +56,25 @@ async function initAuthHeader() {
                 });
             }
         } else {
-            // Session expired or not logged in — clear localStorage
             localStorage.removeItem('user');
         }
     } catch (e) {
-        // silently fail — not critical
+        // ошибка соединения — ничего не делаем
     }
 }
 
-/**
- * Fast synchronous check using localStorage — use for UI show/hide
- */
-function isUserLoggedIn() {
-    return localStorage.getItem('user') !== null;
-}
-
-/**
- * Show an inline error message inside a form
- */
+// показать ошибку в форме
 function showFormError(form, message) {
     let err = form.querySelector('.form-error');
     if (!err) {
         err = document.createElement('p');
         err.className = 'form-error';
-        err.style.cssText = 'color:red;margin:8px 0;font-size:14px;';
         form.prepend(err);
     }
     err.textContent = message;
 }
 
+// очистить ошибку формы
 function clearFormError(form) {
     const err = form.querySelector('.form-error');
     if (err) err.remove();

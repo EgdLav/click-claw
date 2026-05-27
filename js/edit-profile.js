@@ -1,13 +1,15 @@
+// редактирование профиля
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── Auth check ────────────────────────────────────────────────────────────
+    // проверка авторизации
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         window.location.href = 'login-modal.html';
         return;
     }
 
-    // ── Load current user data to pre-fill form ───────────────────────────────
+    // предзаполнение формы
     const userData = await apiGet('api/users.php', { action: 'get' });
     if (userData.success) {
         const u = userData.data;
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (phoneEl)     phoneEl.value     = u.phone || '';
     }
 
-    // ── Form submit ───────────────────────────────────────────────────────────
+    // отправка формы
     const form = document.getElementById('editProfileForm');
     if (form) {
         form.addEventListener('submit', async (e) => {
@@ -37,10 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
 
-            const result = await apiPost('api/users.php?action=update', {
-                name: fullName,
-                phone
-            });
+            const result = await apiPost('api/users.php?action=update', { name: fullName, phone });
 
             if (result.success) {
                 window.location.href = 'profile-settings.html';

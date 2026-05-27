@@ -1,11 +1,9 @@
-/**
- * Mobile burger menu — shared across all pages
- * Handles missing navOverlay gracefully
- */
+// мобильное меню — бургер
+
 document.addEventListener('DOMContentLoaded', () => {
     const burgerBtn  = document.querySelector('.burger-btn');
     const mobileMenu = document.getElementById('mobileMenu');
-    const navOverlay = document.getElementById('navOverlay'); // may be null
+    const navOverlay = document.getElementById('navOverlay');
 
     if (!burgerBtn || !mobileMenu) return;
 
@@ -31,8 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (navOverlay) navOverlay.addEventListener('click', closeMenu);
 
+    // выпадающие меню на мобильных
     document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function (e) {
+        dropdown.addEventListener('click', function(e) {
             if (window.innerWidth <= 428) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -55,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.innerWidth > 428) closeMenu();
     });
 
+    // свайп для закрытия
     let touchStartX = 0;
     mobileMenu.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;

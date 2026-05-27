@@ -1,8 +1,10 @@
+// управление заказами в админке
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const tbody      = document.querySelector('.admin__table tbody');
-    const titleEl    = document.querySelector('.admin__table-title');
-    const filterSel  = document.querySelector('.admin__form-select');
+    const tbody     = document.querySelector('.admin__table tbody');
+    const titleEl   = document.querySelector('.admin__table-title');
+    const filterSel = document.querySelector('.admin__form-select');
 
     const statusMap = {
         new:        { label: 'Новый',       cls: 'admin__badge--new' },
@@ -13,7 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let allOrders = [];
 
-    // ── Load orders ───────────────────────────────────────────────────────────
     async function loadOrders() {
         const data = await apiGet('../api/orders.php', { action: 'all' });
         allOrders = data.success ? data.data : [];
@@ -32,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const st    = statusMap[o.status] || { label: o.status, cls: '' };
             const total = Number(o.total).toLocaleString('ru-RU') + ' ₽';
             const date  = new Date(o.created_at).toLocaleDateString('ru-RU');
-
             let actions = '';
             if (o.status === 'new') {
                 actions = `
@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </tr>`;
         }).join('');
 
-        // Status buttons
         tbody.querySelectorAll('[data-status]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
@@ -76,15 +75,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ── Filter by status ──────────────────────────────────────────────────────
+    // фильтр по статусу
     if (filterSel) {
         filterSel.addEventListener('change', () => {
-            const val = filterSel.value;
             const statusByLabel = {
                 'Новые': 'new', 'В обработке': 'processing',
                 'Выполненные': 'completed', 'Отменённые': 'cancelled'
             };
-            const statusKey = statusByLabel[val];
+            const statusKey = statusByLabel[filterSel.value];
             if (!statusKey) { renderOrders(allOrders); return; }
             renderOrders(allOrders.filter(o => o.status === statusKey));
         });

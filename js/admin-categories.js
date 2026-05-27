@@ -1,14 +1,15 @@
+// управление категориями в админке
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const tbody   = document.querySelector('.admin__table tbody');
-    const titleEl = document.querySelector('.admin__table-title');
-    const addForm = document.getElementById('addCategoryForm');
+    const tbody    = document.querySelector('.admin__table tbody');
+    const titleEl  = document.querySelector('.admin__table-title');
+    const addForm  = document.getElementById('addCategoryForm');
     const addInput = addForm?.querySelector('input[type="text"]');
-    const addBtn  = addForm?.querySelector('.admin__btn:not(.admin__btn-outline)');
+    const addBtn   = addForm?.querySelector('.admin__btn:not(.admin__btn-outline)');
 
     let allCats = [];
 
-    // ── Load categories ───────────────────────────────────────────────────────
     async function loadCategories() {
         const data = await apiGet('../api/categories.php', { action: 'list' });
         allCats = data.success ? data.data : [];
@@ -44,10 +45,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </td>
             </tr>`).join('');
 
-        // Edit toggle
+        // переключение в режим редактирования
         tbody.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
+                const id  = btn.dataset.id;
                 const row = btn.closest('tr');
                 row.querySelector('.cat-name').style.display = 'none';
                 row.querySelector('.cat-edit-input').style.display = 'inline-block';
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Save edit
+        // сохранение изменений
         tbody.querySelectorAll('.btn-save').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id    = btn.dataset.id;
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Delete
+        // удаление
         tbody.querySelectorAll('.btn-delete').forEach(btn => {
             btn.addEventListener('click', async () => {
                 if (!confirm('Удалить категорию? Товары в ней останутся без категории.')) return;
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ── Add category ──────────────────────────────────────────────────────────
+    // добавление категории
     if (addBtn && addInput) {
         addBtn.addEventListener('click', async () => {
             const name = addInput.value.trim();

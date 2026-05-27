@@ -1,7 +1,5 @@
 <?php
-/**
- * Users API: get current user, update profile
- */
+// пользователи: получение данных, обновление профиля
 ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
@@ -13,14 +11,8 @@ header('Content-Type: application/json; charset=utf-8');
 $action = getGetField('action') ?: getPostField('action');
 
 switch ($action) {
-    case 'get':
-        requireAuth();
-        handleGet();
-        break;
-    case 'update':
-        requireAuth();
-        handleUpdate();
-        break;
+    case 'get':    requireAuth(); handleGet();    break;
+    case 'update': requireAuth(); handleUpdate(); break;
     default:
         jsonResponse(false, null, 'Неизвестное действие', 400);
 }
@@ -54,7 +46,6 @@ function handleUpdate(): void {
     $stmt = $pdo->prepare("UPDATE users SET name = ?, phone = ? WHERE id = ?");
     $stmt->execute([$name, $phone, currentUserId()]);
 
-    // Update session name
     $_SESSION['user_name'] = $name;
 
     jsonResponse(true, ['name' => $name, 'phone' => $phone]);

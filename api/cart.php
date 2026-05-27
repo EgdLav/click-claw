@@ -1,8 +1,5 @@
 <?php
-/**
- * Cart API: get, add, update, remove, clear
- * Cart is stored in DB table `cart` (user_id, product_id, quantity)
- */
+// корзина: получение, добавление, обновление, удаление
 ob_start();
 
 require_once __DIR__ . '/../includes/db.php';
@@ -11,7 +8,7 @@ require_once __DIR__ . '/../includes/auth_check.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Create cart table if not exists
+// создание таблицы если не существует
 getDB()->exec("
     CREATE TABLE IF NOT EXISTS cart (
         id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -28,28 +25,12 @@ $action = getGetField('action') ?: getPostField('action');
 if (empty($action)) $action = 'get';
 
 switch ($action) {
-    case 'get':
-        handleGet();
-        break;
-    case 'add':
-        requireAuth();
-        handleAdd();
-        break;
-    case 'update':
-        requireAuth();
-        handleUpdate();
-        break;
-    case 'remove':
-        requireAuth();
-        handleRemove();
-        break;
-    case 'clear':
-        requireAuth();
-        handleClear();
-        break;
-    case 'count':
-        handleCount();
-        break;
+    case 'get':    handleGet();                    break;
+    case 'add':    requireAuth(); handleAdd();     break;
+    case 'update': requireAuth(); handleUpdate();  break;
+    case 'remove': requireAuth(); handleRemove();  break;
+    case 'clear':  requireAuth(); handleClear();   break;
+    case 'count':  handleCount();                  break;
     default:
         jsonResponse(false, null, 'Неизвестное действие', 400);
 }
@@ -120,14 +101,12 @@ function handleAdd(): void {
 
     $userId = currentUserId();
 
-    // Get current quantity
     $cur = $pdo->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
     $cur->execute([$userId, $productId]);
     $existing = $cur->fetchColumn();
 
     $newQty = min(($existing ?: 0) + $qty, (int)$product['stock']);
 
-    // INSERT or UPDATE
     $pdo->prepare("
         INSERT INTO cart (user_id, product_id, quantity)
         VALUES (?, ?, ?)
@@ -148,7 +127,7 @@ function handleUpdate(): void {
     }
 
     $productId = (int)($_POST['product_id'] ?? 0);
-    $qty       = (int)($_POST['quantity'] ?? 0);
+    $qty       = (int)($_POST['quantity']   ?? 0);
 
     if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
 

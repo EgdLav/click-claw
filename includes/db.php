@@ -1,8 +1,5 @@
 <?php
-/**
- * Database connection — MySQL via PDO
- * Host: localhost | DB: clickclaw | User: root | Pass: (empty)
- */
+// подключение к базе данных
 
 function getDB(): PDO {
     static $pdo = null;
@@ -14,7 +11,6 @@ function getDB(): PDO {
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $pdo->exec("SET NAMES 'utf8mb4'");
         } catch (\PDOException $e) {
-            // Return clean JSON instead of letting PHP dump an HTML error
             header('Content-Type: application/json; charset=utf-8');
             http_response_code(500);
             echo json_encode([

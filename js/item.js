@@ -1,7 +1,9 @@
+// страница товара
+
 document.addEventListener('DOMContentLoaded', async () => {
     initAuthHeader();
 
-    const params = new URLSearchParams(window.location.search);
+    const params    = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
     if (!productId) {
@@ -19,11 +21,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const p = data.data;
         const images = (p.images && p.images.length > 0) ? p.images : [p.image || './public/clava.png'];
-        const price = Number(p.price).toLocaleString('ru-RU') + ' ₽';
+        const price  = Number(p.price).toLocaleString('ru-RU') + ' ₽';
 
         document.title = p.name;
 
-        // ── Gallery ───────────────────────────────────────────────────────────
+        // галерея
         const mainImg    = document.querySelector('.main-image img');
         const thumbsWrap = document.querySelector('.thumbnails');
 
@@ -56,10 +58,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const stockEl = document.querySelector('.stock-status .count');
         if (stockEl) stockEl.textContent = `${p.stock} шт.`;
 
-        const descEls = document.querySelectorAll('.product-short-desc');
-        descEls.forEach(el => el.textContent = p.description || '');
+        document.querySelectorAll('.product-short-desc').forEach(el => el.textContent = p.description || '');
 
-        // Quantity controls
+        // управление количеством
         const qtyInput = document.querySelector('.quantity-control input');
         const minusBtn = document.querySelector('.quantity-control button:first-child');
         const plusBtn  = document.querySelector('.quantity-control button:last-child');
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Add to cart
+        // добавить в корзину
         const addBtn = document.querySelector('.add-to-cart');
         if (addBtn) {
             const innerLink = addBtn.querySelector('a');
@@ -97,10 +98,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // ── Wishlist toggle ───────────────────────────────────────────────────
+        // список желаний
         const wishBtn = document.querySelector('.wishlist-toggle');
         if (wishBtn) {
-            // Check current state
             const checkData = await apiGet('api/wishlist.php', { action: 'check', product_id: productId });
             let inWishlist = checkData.success && checkData.data.in_wishlist;
             updateWishBtn(wishBtn, inWishlist);

@@ -1,7 +1,5 @@
 <?php
-/**
- * Authentication helpers for КЛИК-КЛАВ
- */
+// проверка авторизации
 
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
@@ -49,9 +47,4 @@ function isAdmin(): bool {
 
 function currentUserId(): ?int {
     return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
-}
-
-function isAjax(): bool {
-    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }

@@ -1,6 +1,8 @@
+// профиль пользователя
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // ── Auth check ────────────────────────────────────────────────────────────
+    // проверка авторизации
     const authData = await apiGet('api/auth.php', { action: 'status' });
     if (!authData.success || !authData.data.logged_in) {
         localStorage.removeItem('user');
@@ -10,14 +12,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = authData.data;
 
-    // Update header account link
+    // обновляем ссылку в шапке
     document.querySelectorAll('a[href="/register-modal.html"], a[href="/login-modal.html"]').forEach(link => {
         link.href = '/profile.html';
         const span = link.querySelector('span');
         if (span) span.textContent = user.user_name;
     });
 
-    // ── Load full user data ───────────────────────────────────────────────────
+    // загрузка данных пользователя
     let userData = {};
     const userResp = await apiGet('api/users.php', { action: 'get' });
     if (userResp.success) {
@@ -25,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const welcome = document.getElementById('pfWelcome');
         if (welcome) welcome.textContent = `Привет, ${userData.name}!`;
 
-        // Info tab
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
         set('infoName',  userData.name);
         set('infoEmail', userData.email);
@@ -35,14 +36,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             : '—');
     }
 
-    // ── Logout ────────────────────────────────────────────────────────────────
+    // выход
     document.getElementById('pfLogout')?.addEventListener('click', async () => {
         await apiGet('api/auth.php', { action: 'logout' });
         localStorage.removeItem('user');
         window.location.href = 'index.html';
     });
 
-    // ── Tabs ──────────────────────────────────────────────────────────────────
+    // вкладки
     const tabs = document.querySelectorAll('.tab-item[data-tab]');
     tabs.forEach(tab => {
         tab.addEventListener('click', e => {
@@ -55,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // ── Status labels ─────────────────────────────────────────────────────────
+    // статусы заказов
     const statusLabels = {
         new:        { text: 'Новый',       cls: 'status--new' },
         processing: { text: 'В обработке', cls: 'status--processing' },
@@ -63,13 +64,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         cancelled:  { text: 'Отменён',     cls: 'status--cancelled' },
     };
 
-    // ── Orders ────────────────────────────────────────────────────────────────
+    // заказы
     const ordersEl   = document.getElementById('pfOrders');
     const lastOrder  = document.getElementById('pfLastOrder');
     const ordersData = await apiGet('api/orders.php', { action: 'list' });
     const orders     = ordersData.success ? ordersData.data : [];
 
-    // Last order block (top section)
     if (lastOrder && orders.length > 0) {
         const o  = orders[0];
         const st = statusLabels[o.status] || { text: o.status, cls: '' };
@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`;
     }
 
-    // Orders tab
     if (ordersEl) {
         if (orders.length === 0) {
             ordersEl.innerHTML = `
@@ -119,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Wishlist ──────────────────────────────────────────────────────────────
+    // список желаний
     const wishEl    = document.getElementById('pfWishlist');
     const wishData  = await apiGet('api/wishlist.php', { action: 'list' });
     const wishItems = wishData.success ? wishData.data : [];
@@ -179,17 +178,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderWishlist();
 
-    // ── Edit profile modal ────────────────────────────────────────────────────
-    const modal       = document.getElementById('editProfileModal');
-    const closeBtn    = document.getElementById('closeEditModal');
-    const editForm    = document.getElementById('editProfileForm');
+    // модалка редактирования профиля
+    const modal    = document.getElementById('editProfileModal');
+    const closeBtn = document.getElementById('closeEditModal');
+    const editForm = document.getElementById('editProfileForm');
 
     function openModal() {
         if (!modal) return;
-        // Reset button state in case it was stuck
         const submitBtn = editForm?.querySelector('button[type="submit"]');
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Сохранить'; }
-        // Pre-fill form with current data
         const parts = (userData.name || '').split(' ');
         const fn = document.getElementById('editFirstName');
         const ln = document.getElementById('editLastName');
@@ -232,7 +229,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userData.phone = phone;
                 const welcome = document.getElementById('pfWelcome');
                 if (welcome) welcome.textContent = `Привет, ${fullName}!`;
-                document.querySelectorAll('a[href="/profile.html"] span').forEach(s => s.textContent = fullName);
                 const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
                 set('infoName',  fullName);
                 set('infoPhone', phone || 'Не указан');
