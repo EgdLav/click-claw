@@ -1,90 +1,84 @@
 <?php
 // список желаний: список, добавление, удаление, проверка
 ob_start();
+session_start();
+include('../includes/db.php');
+include('../includes/functions.php');
 
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
-header('Content-Type: application/json; charset=utf-8');
+// список желаний
+if($action == 'list'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
 
-// создание таблицы если не существует
-$pdo = getDB();
-$pdo->exec("
-    CREATE TABLE IF NOT EXISTS wishlist (
-        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id    INT UNSIGNED NOT NULL,
-        product_id INT UNSIGNED NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_wish (user_id, product_id),
-        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-");
-
-$action = getGetField('action') ?: getPostField('action');
-if (empty($action)) $action = 'list';
-
-switch ($action) {
-    case 'list':   requireAuth(); handleList();   break;
-    case 'add':    requireAuth(); handleAdd();    break;
-    case 'remove': requireAuth(); handleRemove(); break;
-    case 'check':  handleCheck(); break; // гости получают false
-    default:
-        jsonResponse(false, null, 'Неизвестное действие', 400);
+    $UID = $_SESSION['uid'];
+    $sql = "SELECT p.*, c.name AS category_name, w.id AS wish_id
+            FROM wishlist w
+            JOIN products p ON w.product_id = p.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE w.user_id = $UID
+            ORDER BY w.created_at DESC";
+    $items = $connect->query($sql)->fetchAll();
+    jsonResponse(true, $items);
 }
 
-function handleList(): void {
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("
-        SELECT p.*, c.name AS category_name, w.id AS wish_id
-        FROM wishlist w
-        JOIN products p ON w.product_id = p.id
-        LEFT JOIN categories c ON p.category_id = c.id
-        WHERE w.user_id = ?
-        ORDER BY w.created_at DESC
-    ");
-    $stmt->execute([currentUserId()]);
-    jsonResponse(true, $stmt->fetchAll());
+// добавление в список желаний
+if($action == 'add'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
+
+    $UID = $_SESSION['uid'];
+    $product_id = (int)($_POST['product_id'] ?? 0);
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
+
+    $sql = "SELECT id FROM products WHERE id = $product_id";
+    $check = $connect->query($sql)->fetch();
+    if(!$check){
+        jsonResponse(false, null, 'Товар не найден');
+    }
+
+    $stmt = $connect->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
+    $stmt->execute([$UID, $product_id]);
+    jsonResponse(true, ['product_id' => $product_id]);
 }
 
-function handleAdd(): void {
-    $productId = (int)($_POST['product_id'] ?? 0);
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
+// удаление из списка желаний
+if($action == 'remove'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
 
-    $pdo   = getDB();
-    $check = $pdo->prepare("SELECT id FROM products WHERE id = ?");
-    $check->execute([$productId]);
-    if (!$check->fetch()) jsonResponse(false, null, 'Товар не найден', 404);
+    $UID = $_SESSION['uid'];
+    $product_id = (int)($_POST['product_id'] ?? 0);
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
 
-    $stmt = $pdo->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
-    $stmt->execute([currentUserId(), $productId]);
-
-    jsonResponse(true, ['product_id' => $productId]);
+    $stmt = $connect->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
+    $stmt->execute([$UID, $product_id]);
+    jsonResponse(true, ['product_id' => $product_id]);
 }
 
-function handleRemove(): void {
-    $productId = (int)($_POST['product_id'] ?? 0);
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
+// проверка наличия в списке желаний
+if($action == 'check'){
+    $product_id = (int)($_GET['product_id'] ?? 0);
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
-    $stmt->execute([currentUserId(), $productId]);
-
-    jsonResponse(true, ['product_id' => $productId]);
-}
-
-function handleCheck(): void {
-    $productId = (int)getGetField('product_id');
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
-
-    if (!isLoggedIn()) {
+    if(!isset($_SESSION['uid'])){
         jsonResponse(true, ['in_wishlist' => false]);
     }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?");
-    $stmt->execute([currentUserId(), $productId]);
-
-    jsonResponse(true, ['in_wishlist' => (bool)$stmt->fetch()]);
+    $UID = $_SESSION['uid'];
+    $sql = "SELECT id FROM wishlist WHERE user_id = $UID AND product_id = $product_id";
+    $check = $connect->query($sql)->fetch();
+    jsonResponse(true, ['in_wishlist' => (bool)$check]);
 }
+
+jsonResponse(false, null, 'Неизвестное действие');

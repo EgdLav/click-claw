@@ -1,186 +1,249 @@
 <?php
 // корзина: получение, добавление, обновление, удаление
 ob_start();
+session_start();
+include('../includes/db.php');
+include('../includes/functions.php');
 
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'get';
 
-header('Content-Type: application/json; charset=utf-8');
+// получение корзины
+if($action == 'get'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(true, ['items' => [], 'total' => 0, 'count' => 0]);
+    }
 
-// создание таблицы если не существует
-getDB()->exec("
-    CREATE TABLE IF NOT EXISTS cart (
-        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id    INT UNSIGNED NOT NULL,
-        product_id INT UNSIGNED NOT NULL,
-        quantity   INT NOT NULL DEFAULT 1,
-        UNIQUE KEY unique_cart (user_id, product_id),
-        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-");
-
-$action = getGetField('action') ?: getPostField('action');
-if (empty($action)) $action = 'get';
-
-switch ($action) {
-    case 'get':    handleGet();                    break;
-    case 'add':    requireAuth(); handleAdd();     break;
-    case 'update': requireAuth(); handleUpdate();  break;
-    case 'remove': requireAuth(); handleRemove();  break;
-    case 'clear':  requireAuth(); handleClear();   break;
-    case 'count':  handleCount();                  break;
-    default:
-        jsonResponse(false, null, 'Неизвестное действие', 400);
-}
-
-function getCartItems(): array {
-    if (!isLoggedIn()) return [];
-
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("
-        SELECT c.product_id, c.quantity,
-               p.name, p.brand, p.price, p.stock,
-               (SELECT pi.image FROM product_images pi
-                WHERE pi.product_id = p.id
-                ORDER BY pi.sort_order ASC LIMIT 1) AS image
-        FROM cart c
-        JOIN products p ON c.product_id = p.id
-        WHERE c.user_id = ?
-        ORDER BY c.id ASC
-    ");
-    $stmt->execute([currentUserId()]);
-    $rows = $stmt->fetchAll();
+    $UID = $_SESSION['uid'];
+    $sql = "SELECT c.product_id, c.quantity,
+                   p.name, p.brand, p.price, p.stock,
+                   (SELECT pi.image FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.sort_order ASC LIMIT 1) AS image
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = $UID
+            ORDER BY c.id ASC";
+    $rows = $connect->query($sql)->fetchAll();
 
     $items = [];
-    foreach ($rows as $row) {
+    $total = 0;
+    $count = 0;
+    foreach($rows as $row){
+        $subtotal = (float)$row['price'] * (int)$row['quantity'];
         $items[] = [
             'product_id' => (int)$row['product_id'],
-            'name'       => $row['name'],
-            'brand'      => $row['brand'],
-            'price'      => (float)$row['price'],
-            'image'      => $row['image'] ?? null,
-            'stock'      => (int)$row['stock'],
-            'quantity'   => (int)$row['quantity'],
-            'subtotal'   => round((float)$row['price'] * (int)$row['quantity'], 2),
+            'name' => $row['name'],
+            'brand' => $row['brand'],
+            'price' => (float)$row['price'],
+            'image' => $row['image'] ?? null,
+            'stock' => (int)$row['stock'],
+            'quantity' => (int)$row['quantity'],
+            'subtotal' => $subtotal,
         ];
-    }
-    return $items;
-}
-
-function cartTotal(array $items): float {
-    return array_sum(array_column($items, 'subtotal'));
-}
-
-function handleGet(): void {
-    $items = getCartItems();
-    jsonResponse(true, [
-        'items' => $items,
-        'total' => cartTotal($items),
-        'count' => array_sum(array_column($items, 'quantity')),
-    ]);
-}
-
-function handleAdd(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
+        $total += $subtotal;
+        $count += (int)$row['quantity'];
     }
 
-    $productId = (int)($_POST['product_id'] ?? 0);
-    $qty       = max(1, (int)($_POST['quantity'] ?? 1));
+    jsonResponse(true, ['items' => $items, 'total' => $total, 'count' => $count]);
+}
 
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
+// добавление в корзину
+if($action == 'add'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("SELECT id, stock FROM products WHERE id = ?");
-    $stmt->execute([$productId]);
-    $product = $stmt->fetch();
+    $UID = $_SESSION['uid'];
+    $product_id = (int)($_POST['product_id'] ?? 0);
+    $qty = max(1, (int)($_POST['quantity'] ?? 1));
 
-    if (!$product) jsonResponse(false, null, 'Товар не найден', 404);
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
 
-    $userId = currentUserId();
+    $sql = "SELECT id, stock FROM products WHERE id = $product_id";
+    $product = $connect->query($sql)->fetch();
 
-    $cur = $pdo->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
-    $cur->execute([$userId, $productId]);
-    $existing = $cur->fetchColumn();
+    if(!$product){
+        jsonResponse(false, null, 'Товар не найден');
+    }
+
+    $sql = "SELECT quantity FROM cart WHERE user_id = $UID AND product_id = $product_id";
+    $existing = $connect->query($sql)->fetchColumn();
 
     $newQty = min(($existing ?: 0) + $qty, (int)$product['stock']);
 
-    $pdo->prepare("
+    $stmt = $connect->prepare("
         INSERT INTO cart (user_id, product_id, quantity)
         VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE quantity = ?
-    ")->execute([$userId, $productId, $newQty, $newQty]);
+    ");
+    $stmt->execute([$UID, $product_id, $newQty, $newQty]);
 
-    $items = getCartItems();
-    jsonResponse(true, [
-        'items' => $items,
-        'total' => cartTotal($items),
-        'count' => array_sum(array_column($items, 'quantity')),
-    ]);
-}
+    // возвращаем обновлённую корзину
+    $sql = "SELECT c.product_id, c.quantity,
+                   p.name, p.brand, p.price, p.stock,
+                   (SELECT pi.image FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.sort_order ASC LIMIT 1) AS image
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = $UID
+            ORDER BY c.id ASC";
+    $rows = $connect->query($sql)->fetchAll();
 
-function handleUpdate(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
+    $items = [];
+    $total = 0;
+    $count = 0;
+    foreach($rows as $row){
+        $subtotal = (float)$row['price'] * (int)$row['quantity'];
+        $items[] = [
+            'product_id' => (int)$row['product_id'],
+            'name' => $row['name'],
+            'brand' => $row['brand'],
+            'price' => (float)$row['price'],
+            'image' => $row['image'] ?? null,
+            'stock' => (int)$row['stock'],
+            'quantity' => (int)$row['quantity'],
+            'subtotal' => $subtotal,
+        ];
+        $total += $subtotal;
+        $count += (int)$row['quantity'];
     }
 
-    $productId = (int)($_POST['product_id'] ?? 0);
-    $qty       = (int)($_POST['quantity']   ?? 0);
+    jsonResponse(true, ['items' => $items, 'total' => $total, 'count' => $count]);
+}
 
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
+// обновление количества
+if($action == 'update'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
 
-    $pdo    = getDB();
-    $userId = currentUserId();
+    $UID = $_SESSION['uid'];
+    $product_id = (int)($_POST['product_id'] ?? 0);
+    $qty = (int)($_POST['quantity'] ?? 0);
 
-    if ($qty <= 0) {
-        $pdo->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?")->execute([$userId, $productId]);
-    } else {
-        $pdo->prepare("
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
+
+    if($qty <= 0){
+        $stmt = $connect->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
+        $stmt->execute([$UID, $product_id]);
+    }else{
+        $stmt = $connect->prepare("
             INSERT INTO cart (user_id, product_id, quantity)
             VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE quantity = ?
-        ")->execute([$userId, $productId, $qty, $qty]);
+        ");
+        $stmt->execute([$UID, $product_id, $qty, $qty]);
     }
 
-    $items = getCartItems();
-    jsonResponse(true, [
-        'items' => $items,
-        'total' => cartTotal($items),
-        'count' => array_sum(array_column($items, 'quantity')),
-    ]);
-}
+    // возвращаем обновлённую корзину
+    $sql = "SELECT c.product_id, c.quantity,
+                   p.name, p.brand, p.price, p.stock,
+                   (SELECT pi.image FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.sort_order ASC LIMIT 1) AS image
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = $UID
+            ORDER BY c.id ASC";
+    $rows = $connect->query($sql)->fetchAll();
 
-function handleRemove(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
+    $items = [];
+    $total = 0;
+    $count = 0;
+    foreach($rows as $row){
+        $subtotal = (float)$row['price'] * (int)$row['quantity'];
+        $items[] = [
+            'product_id' => (int)$row['product_id'],
+            'name' => $row['name'],
+            'brand' => $row['brand'],
+            'price' => (float)$row['price'],
+            'image' => $row['image'] ?? null,
+            'stock' => (int)$row['stock'],
+            'quantity' => (int)$row['quantity'],
+            'subtotal' => $subtotal,
+        ];
+        $total += $subtotal;
+        $count += (int)$row['quantity'];
     }
 
-    $productId = (int)($_POST['product_id'] ?? 0);
-    if (!$productId) jsonResponse(false, null, 'Не указан ID товара', 400);
-
-    $pdo = getDB();
-    $pdo->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?")->execute([currentUserId(), $productId]);
-
-    $items = getCartItems();
-    jsonResponse(true, [
-        'items' => $items,
-        'total' => cartTotal($items),
-        'count' => array_sum(array_column($items, 'quantity')),
-    ]);
+    jsonResponse(true, ['items' => $items, 'total' => $total, 'count' => $count]);
 }
 
-function handleClear(): void {
-    getDB()->prepare("DELETE FROM cart WHERE user_id = ?")->execute([currentUserId()]);
+// удаление из корзины
+if($action == 'remove'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
+
+    $UID = $_SESSION['uid'];
+    $product_id = (int)($_POST['product_id'] ?? 0);
+    if(!$product_id){
+        jsonResponse(false, null, 'Не указан ID товара');
+    }
+
+    $stmt = $connect->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
+    $stmt->execute([$UID, $product_id]);
+
+    // возвращаем обновлённую корзину
+    $sql = "SELECT c.product_id, c.quantity,
+                   p.name, p.brand, p.price, p.stock,
+                   (SELECT pi.image FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.sort_order ASC LIMIT 1) AS image
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = $UID
+            ORDER BY c.id ASC";
+    $rows = $connect->query($sql)->fetchAll();
+
+    $items = [];
+    $total = 0;
+    $count = 0;
+    foreach($rows as $row){
+        $subtotal = (float)$row['price'] * (int)$row['quantity'];
+        $items[] = [
+            'product_id' => (int)$row['product_id'],
+            'name' => $row['name'],
+            'brand' => $row['brand'],
+            'price' => (float)$row['price'],
+            'image' => $row['image'] ?? null,
+            'stock' => (int)$row['stock'],
+            'quantity' => (int)$row['quantity'],
+            'subtotal' => $subtotal,
+        ];
+        $total += $subtotal;
+        $count += (int)$row['quantity'];
+    }
+
+    jsonResponse(true, ['items' => $items, 'total' => $total, 'count' => $count]);
+}
+
+// очистка корзины
+if($action == 'clear'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
+
+    $UID = $_SESSION['uid'];
+    $connect->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$UID]);
     jsonResponse(true, ['items' => [], 'total' => 0, 'count' => 0]);
 }
 
-function handleCount(): void {
-    if (!isLoggedIn()) {
+// количество товаров в корзине
+if($action == 'count'){
+    if(!isset($_SESSION['uid'])){
         jsonResponse(true, ['count' => 0]);
     }
-    $stmt = getDB()->prepare("SELECT COALESCE(SUM(quantity), 0) FROM cart WHERE user_id = ?");
-    $stmt->execute([currentUserId()]);
-    jsonResponse(true, ['count' => (int)$stmt->fetchColumn()]);
+
+    $UID = $_SESSION['uid'];
+    $sql = "SELECT COALESCE(SUM(quantity), 0) FROM cart WHERE user_id = $UID";
+    $count = (int)$connect->query($sql)->fetchColumn();
+    jsonResponse(true, ['count' => $count]);
 }
+
+jsonResponse(false, null, 'Неизвестное действие');

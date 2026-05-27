@@ -1,123 +1,118 @@
 <?php
 // авторизация, регистрация, выход
 ob_start();
+session_start();
+include('../includes/db.php');
+include('../includes/functions.php');
 
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-header('Content-Type: application/json; charset=utf-8');
-
-$action = getGetField('action') ?: getPostField('action');
-
-switch ($action) {
-    case 'login':    handleLogin();    break;
-    case 'register': handleRegister(); break;
-    case 'logout':   handleLogout();   break;
-    case 'status':   handleStatus();   break;
-    default:
-        jsonResponse(false, null, 'Неизвестное действие', 400);
-}
-
-function handleLogin(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
-    }
-
-    $email    = strtolower(trim($_POST['email'] ?? ''));
+// вход
+if($action == 'login'){
+    $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    if (empty($email) || empty($password)) {
-        jsonResponse(false, null, 'Введите email и пароль', 400);
+    if(empty($email) || empty($password)){
+        jsonResponse(false, null, 'Введите все данные');
     }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if (!$user || !password_verify($password, $user['password'])) {
-        jsonResponse(false, null, 'Неверный email или пароль', 401);
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        jsonResponse(false, null, 'Неверный формат почты');
     }
 
-    $_SESSION['user_id']   = $user['id'];
-    $_SESSION['user_name'] = $user['name'];
-    $_SESSION['user_role'] = $user['role'];
+    $sql = "SELECT * FROM users WHERE email = '$email'";
+    $check = $connect->query($sql)->fetch();
+
+    if(!$check){
+        jsonResponse(false, null, 'Нет такого пользователя');
+    }
+
+    if(!password_verify($password, $check['password'])){
+        jsonResponse(false, null, 'Неверный пароль');
+    }
+
+    $_SESSION['uid'] = $check['id'];
+    $_SESSION['user_name'] = $check['name'];
+    $_SESSION['user_role'] = $check['role'];
 
     jsonResponse(true, [
-        'id'        => $user['id'],
-        'user_name' => $user['name'],
-        'user_role' => $user['role'],
+        'id' => $check['id'],
+        'user_name' => $check['name'],
+        'user_role' => $check['role'],
         'logged_in' => true,
     ]);
 }
 
-function handleRegister(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
-    }
-
-    $name     = sanitize($_POST['name']     ?? '');
-    $email    = strtolower(trim($_POST['email']    ?? ''));
+// регистрация
+if($action == 'register'){
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm_password'] ?? '';
-    $agree    = $_POST['agree'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
+    $agree = $_POST['agree'] ?? '';
 
-    if (empty($name) || empty($email) || empty($password)) {
-        jsonResponse(false, null, 'Заполните все обязательные поля', 400);
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        jsonResponse(false, null, 'Неверный формат email', 400);
-    }
-    if (strlen($password) < 6) {
-        jsonResponse(false, null, 'Пароль минимум 6 символов', 400);
-    }
-    if ($password !== $confirm) {
-        jsonResponse(false, null, 'Пароли не совпадают', 400);
-    }
-    if (empty($agree)) {
-        jsonResponse(false, null, 'Необходимо принять политику конфиденциальности', 400);
+    if(empty($name) || empty($email) || empty($password)){
+        jsonResponse(false, null, 'Заполните все обязательные поля');
     }
 
-    $pdo  = getDB();
-    $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-    $check->execute([$email]);
-    if ($check->fetch()) {
-        jsonResponse(false, null, 'Пользователь с таким email уже существует', 409);
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        jsonResponse(false, null, 'Неверный формат почты');
     }
 
-    $hash = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
+    if(mb_strlen($password) < 6){
+        jsonResponse(false, null, 'Пароль минимум 6 символов');
+    }
+
+    if($password != $confirm){
+        jsonResponse(false, null, 'Пароли не совпадают');
+    }
+
+    if(empty($agree)){
+        jsonResponse(false, null, 'Необходимо принять политику конфиденциальности');
+    }
+
+    $sql = "SELECT * FROM users WHERE email = '$email'";
+    $check = $connect->query($sql)->fetch();
+    if($check){
+        jsonResponse(false, null, 'Пользователь с таким email уже существует');
+    }
+
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $connect->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
     $stmt->execute([$name, $email, $hash]);
-    $userId = (int)$pdo->lastInsertId();
+    $userId = (int)$connect->lastInsertId();
 
-    $_SESSION['user_id']   = $userId;
+    $_SESSION['uid'] = $userId;
     $_SESSION['user_name'] = $name;
     $_SESSION['user_role'] = 'user';
 
     jsonResponse(true, [
-        'id'        => $userId,
+        'id' => $userId,
         'user_name' => $name,
         'user_role' => 'user',
         'logged_in' => true,
     ]);
 }
 
-function handleLogout(): void {
+// выход
+if($action == 'logout'){
     session_unset();
     session_destroy();
     jsonResponse(true, ['logged_in' => false]);
 }
 
-function handleStatus(): void {
-    if (isLoggedIn()) {
+// статус
+if($action == 'status'){
+    if(isset($_SESSION['uid'])){
         jsonResponse(true, [
             'logged_in' => true,
-            'user_id'   => $_SESSION['user_id'],
-            'user_name' => $_SESSION['user_name'],
-            'user_role' => $_SESSION['user_role'],
+            'user_id' => $_SESSION['uid'],
+            'user_name' => $_SESSION['user_name'] ?? '',
+            'user_role' => $_SESSION['user_role'] ?? '',
         ]);
-    } else {
+    }else{
         jsonResponse(true, ['logged_in' => false]);
     }
 }
+
+jsonResponse(false, null, 'Неизвестное действие');

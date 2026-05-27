@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 localStorage.setItem('user', JSON.stringify(data.data));
-                if (data.data.role === 'admin') {
+                if (data.data.user_role === 'admin') {
                     window.location.href = 'admin/admin.html';
                 } else {
                     window.location.href = 'profile.html';

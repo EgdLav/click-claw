@@ -1,158 +1,150 @@
 <?php
 // заказы: создание, список пользователя, все (для админа), обновление статуса
 ob_start();
+session_start();
+include('../includes/db.php');
+include('../includes/functions.php');
 
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
-header('Content-Type: application/json; charset=utf-8');
-
-$action = getGetField('action') ?: getPostField('action');
-if (empty($action)) $action = 'list';
-
-switch ($action) {
-    case 'create':        requireAuth();  handleCreate();       break;
-    case 'list':          requireAuth();  handleList();         break;
-    case 'get':           requireAuth();  handleGet();          break;
-    case 'all':           requireAdmin(); handleAll();          break;
-    case 'update_status': requireAdmin(); handleUpdateStatus(); break;
-    default:
-        jsonResponse(false, null, 'Неизвестное действие', 400);
-}
-
-function handleCreate(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
+// создание заказа
+if($action == 'create'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
     }
 
-    $name    = sanitize($_POST['name']    ?? '');
-    $phone   = sanitize($_POST['phone']   ?? '');
-    $email   = sanitize($_POST['email']   ?? '');
-    $address = sanitize($_POST['address'] ?? '');
+    $UID = $_SESSION['uid'];
+    $name = $_POST['name'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $address = $_POST['address'] ?? '';
 
-    if (empty($name) || empty($phone)) {
-        jsonResponse(false, null, 'Заполните обязательные поля: имя и телефон', 400);
+    if(empty($name) || empty($phone)){
+        jsonResponse(false, null, 'Заполните обязательные поля: имя и телефон');
     }
-
-    $pdo    = getDB();
-    $userId = currentUserId();
 
     // читаем корзину
-    $cartStmt = $pdo->prepare("
-        SELECT c.product_id, c.quantity, p.name, p.price, p.stock
-        FROM cart c
-        JOIN products p ON c.product_id = p.id
-        WHERE c.user_id = ?
-    ");
-    $cartStmt->execute([$userId]);
-    $cartRows = $cartStmt->fetchAll();
+    $sql = "SELECT c.product_id, c.quantity, p.name, p.price, p.stock
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = $UID";
+    $cartRows = $connect->query($sql)->fetchAll();
 
-    if (empty($cartRows)) {
-        jsonResponse(false, null, 'Корзина пуста', 400);
+    if(empty($cartRows)){
+        jsonResponse(false, null, 'Корзина пуста');
     }
 
     // считаем итог
-    $total      = 0;
+    $total = 0;
     $orderItems = [];
-    foreach ($cartRows as $row) {
-        $subtotal    = (float)$row['price'] * (int)$row['quantity'];
-        $total      += $subtotal;
+    foreach($cartRows as $row){
+        $subtotal = (float)$row['price'] * (int)$row['quantity'];
+        $total += $subtotal;
         $orderItems[] = [
             'product_id' => $row['product_id'],
-            'name'       => $row['name'],
-            'price'      => (float)$row['price'],
-            'quantity'   => (int)$row['quantity'],
+            'name' => $row['name'],
+            'price' => (float)$row['price'],
+            'quantity' => (int)$row['quantity'],
         ];
     }
 
     // создаём заказ
-    $stmt = $pdo->prepare("
+    $stmt = $connect->prepare("
         INSERT INTO orders (user_id, name, phone, email, address, total)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$userId, $name, $phone, $email, $address, $total]);
-    $orderId = (int)$pdo->lastInsertId();
+    $stmt->execute([$UID, $name, $phone, $email, $address, $total]);
+    $order_id = (int)$connect->lastInsertId();
 
     // позиции заказа
-    $itemStmt = $pdo->prepare("
+    $itemStmt = $connect->prepare("
         INSERT INTO order_items (order_id, product_id, name, price, quantity)
         VALUES (?, ?, ?, ?, ?)
     ");
-    foreach ($orderItems as $item) {
-        $itemStmt->execute([$orderId, $item['product_id'], $item['name'], $item['price'], $item['quantity']]);
+    foreach($orderItems as $item){
+        $itemStmt->execute([$order_id, $item['product_id'], $item['name'], $item['price'], $item['quantity']]);
     }
 
     // очищаем корзину
-    $pdo->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$userId]);
+    $connect->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$UID]);
 
-    jsonResponse(true, ['order_id' => $orderId, 'total' => $total]);
+    jsonResponse(true, ['order_id' => $order_id, 'total' => $total]);
 }
 
-function handleList(): void {
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("
-        SELECT o.*,
-               (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS items_count
-        FROM orders o
-        WHERE o.user_id = ?
-        ORDER BY o.created_at DESC
-    ");
-    $stmt->execute([currentUserId()]);
-    jsonResponse(true, $stmt->fetchAll());
+// список заказов пользователя
+if($action == 'list'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
+    }
+
+    $UID = $_SESSION['uid'];
+    $sql = "SELECT o.*, (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS items_count
+            FROM orders o
+            WHERE o.user_id = $UID
+            ORDER BY o.created_at DESC";
+    $orders = $connect->query($sql)->fetchAll();
+    jsonResponse(true, $orders);
 }
 
-function handleGet(): void {
-    $id = (int)getGetField('id');
-    if (!$id) {
-        jsonResponse(false, null, 'Не указан ID заказа', 400);
+// получение одного заказа
+if($action == 'get'){
+    if(!isset($_SESSION['uid'])){
+        jsonResponse(false, null, 'Необходима авторизация');
     }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ?");
-    $stmt->execute([$id, currentUserId()]);
-    $order = $stmt->fetch();
-
-    if (!$order) {
-        jsonResponse(false, null, 'Заказ не найден', 404);
+    $UID = $_SESSION['uid'];
+    $id = (int)($_GET['id'] ?? 0);
+    if(!$id){
+        jsonResponse(false, null, 'Не указан ID заказа');
     }
 
-    $itemStmt = $pdo->prepare("SELECT * FROM order_items WHERE order_id = ?");
+    $sql = "SELECT * FROM orders WHERE id = $id AND user_id = $UID";
+    $order = $connect->query($sql)->fetch();
+
+    if(!$order){
+        jsonResponse(false, null, 'Заказ не найден');
+    }
+
+    $itemStmt = $connect->prepare("SELECT * FROM order_items WHERE order_id = ?");
     $itemStmt->execute([$id]);
     $order['items'] = $itemStmt->fetchAll();
 
     jsonResponse(true, $order);
 }
 
-function handleAll(): void {
-    $pdo  = getDB();
-    $stmt = $pdo->query("
-        SELECT o.*,
-               u.name AS user_name, u.email AS user_email,
+// все заказы (для админа)
+if($action == 'all'){
+    if(!isset($_SESSION['uid']) || $_SESSION['user_role'] != 'admin'){
+        jsonResponse(false, null, 'Нет доступа');
+    }
+
+    $orders = $connect->query("
+        SELECT o.*, u.name AS user_name, u.email AS user_email,
                (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS items_count
         FROM orders o
         LEFT JOIN users u ON o.user_id = u.id
         ORDER BY o.created_at DESC
-    ");
-    jsonResponse(true, $stmt->fetchAll());
+    ")->fetchAll();
+    jsonResponse(true, $orders);
 }
 
-function handleUpdateStatus(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        jsonResponse(false, null, 'Метод не поддерживается', 405);
+// обновление статуса заказа
+if($action == 'update_status'){
+    if(!isset($_SESSION['uid']) || $_SESSION['user_role'] != 'admin'){
+        jsonResponse(false, null, 'Нет доступа');
     }
 
-    $id     = (int)($_POST['id']     ?? 0);
-    $status = sanitize($_POST['status'] ?? '');
-
+    $id = (int)($_POST['id'] ?? 0);
+    $status = $_POST['status'] ?? '';
     $allowed = ['new', 'processing', 'completed', 'cancelled'];
-    if (!$id || !in_array($status, $allowed, true)) {
-        jsonResponse(false, null, 'Неверные параметры', 400);
+
+    if(!$id || !in_array($status, $allowed)){
+        jsonResponse(false, null, 'Неверные параметры');
     }
 
-    $pdo  = getDB();
-    $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
+    $stmt = $connect->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$status, $id]);
-
     jsonResponse(true, ['id' => $id, 'status' => $status]);
 }
+
+jsonResponse(false, null, 'Неизвестное действие');
