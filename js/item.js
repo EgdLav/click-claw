@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.title = p.name;
 
+        // обновляем хлебную крошку
+        const bc = document.getElementById('breadcrumbProduct');
+        if (bc) bc.textContent = p.name;
+
         // галерея
         const mainImg    = document.querySelector('.main-image img');
         const thumbsWrap = document.querySelector('.thumbnails');

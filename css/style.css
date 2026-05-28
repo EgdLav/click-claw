@@ -1208,7 +1208,7 @@ ol {
 }
 
 .catalog-text {
-    margin-top: 60px;
+    margin-top: 100px;
     margin-bottom: 40px;
     display: flex;
     flex-direction: column;
@@ -2113,6 +2113,31 @@ select.filter {
 .wishlist_btn {
     width: fit-content;
     padding: 20px 40px;
+}
+
+/* ===== ХЛЕБНЫЕ КРОШКИ ===== */
+.breadcrumbs {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    color: #888;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.breadcrumbs a {
+    color: #000;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs span {
+    color: #888;
 }
 
 .cart-page {
