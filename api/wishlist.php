@@ -14,7 +14,10 @@ if($action == 'list'){
     }
 
     $UID = $_SESSION['uid'];
-    $sql = "SELECT p.*, c.name AS category_name, w.id AS wish_id
+    $sql = "SELECT p.*, c.name AS category_name, w.id AS wish_id,
+                   (SELECT pi.image FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.sort_order ASC LIMIT 1) AS image
             FROM wishlist w
             JOIN products p ON w.product_id = p.id
             LEFT JOIN categories c ON p.category_id = c.id

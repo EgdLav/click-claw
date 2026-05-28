@@ -218,8 +218,10 @@
                 <div style="width: 40%; height: fit-content;" class="summary-card">
                     <h3>Краткое содержание</h3>
                     <div class="promo-input">
-                        <img src="./public/code.svg" alt="">
-                        <input type="text" placeholder="Введите свой промокод">
+                        <div class="promo-input__row">
+                            <img src="./public/code.svg" alt="">
+                            <input type="text" placeholder="Введите свой промокод">
+                        </div>
                         <button>Применить</button>
                     </div>
 
@@ -241,7 +243,7 @@
                         <span>10 999 ₽</span>
                     </div>
 
-                    <button class="btn">Оплатить</button>
+                    <button class="btn" style="cursor: pointer;">Оплатить</button>
                 </div>
             </div>
         </div>
@@ -337,11 +339,11 @@
 
     <!-- Success modal -->
     <div id="orderSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:16px;padding:48px 40px;max-width:440px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div style="background:#fff;border-radius:16px;padding:48px 40px;max-width:440px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);box-sizing:border-box;overflow:hidden;">
             <div style="font-size:56px;margin-bottom:16px;">✓</div>
             <h2 style="font-size:24px;margin:0 0 12px;">Заказ успешно оформлен!</h2>
             <p style="color:#666;font-size:15px;margin:0 0 32px;line-height:1.5;">Спасибо за покупку. Мы свяжемся с вами в ближайшее время для подтверждения заказа.</p>
-            <a href="/profile.html" class="btn" style="display:inline-block;padding:14px 40px;">Мои заказы</a>
+            <a href="/profile.html" class="btn" style="display:inline-block;padding:14px 40px;box-sizing:border-box;max-width:100%;">Мои заказы</a>
         </div>
     </div>
 </body>

@@ -3661,6 +3661,17 @@ select.filter {
     }
 }
 
+/* корзина — стекирование при ширине до 1024px */
+@media (max-width: 1024px) {
+    .cart-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .cart-sidebar {
+        width: 100%;
+    }
+}
 
 /* адаптив телефон */
 @media (max-width: 428px) {
@@ -4542,11 +4553,6 @@ select.filter {
 
     .cart-subtitle {
         font-size: 16px;
-    }
-
-    .cart-layout {
-        flex-direction: column;
-        gap: 20px;
     }
 
     .cart-item {
@@ -5928,10 +5934,10 @@ select.filter {
     letter-spacing: 0.3px;
 }
 
-.status--new        { background: #e3f0ff; color: #1565c0; }
-.status--processing { background: #fff3e0; color: #e65100; }
-.status--completed  { background: #e8f5e9; color: #2e7d32; }
-.status--cancelled  { background: #fce4ec; color: #c62828; }
+.status--new        { background: #f0f0f0; color: #000; }
+.status--processing { background: #000; color: #fff; }
+.status--completed  { background: #000; color: #fff; }
+.status--cancelled  { background: #f0f0f0; color: #000; border: 1px solid #ccc; }
 
 .pf__empty {
     text-align: center;

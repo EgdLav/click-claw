@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subtitle = document.querySelector('.cart-subtitle');
     if (subtitle) subtitle.style.display = 'none';
 
+    // предзаполнение данных покупателя
+    const userResp = await apiGet('api/users.php', { action: 'get' });
+    if (userResp.success) {
+        const u = userResp.data;
+        const phoneEl = document.getElementById('orderPhone');
+        const emailEl = document.getElementById('orderEmail');
+        if (phoneEl && u.phone) phoneEl.value = u.phone;
+        if (emailEl && u.email) emailEl.value = u.email;
+    }
+
     // загрузка корзины
     const cartData = await apiGet('api/cart.php', { action: 'get' });
     if (!cartData.success || cartData.data.items.length === 0) {
