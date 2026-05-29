@@ -357,6 +357,48 @@
     <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/slider.js"></script>
+
+    <!-- Попап для гостей -->
+    <div id="guestPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:48px 40px;max-width:460px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);box-sizing:border-box;position:relative;">
+            <button id="guestPopupClose" style="position:absolute;top:16px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">✕</button>
+            <div style="font-size:48px;margin-bottom:16px;">👋</div>
+            <h2 style="font-family:'igra',sans-serif;font-size:26px;margin:0 0 12px;">Добро пожаловать!</h2>
+            <p style="color:#666;font-size:15px;margin:0 0 32px;line-height:1.6;">Зарегистрируйтесь, чтобы добавлять товары в корзину, отслеживать заказы и сохранять избранное.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <a href="/register-modal.html" style="display:block;background:#000;color:#fff;padding:14px 24px;border-radius:8px;text-decoration:none;font-family:'igra',sans-serif;font-size:16px;">Зарегистрироваться</a>
+                <a href="/login-modal.html" style="display:block;background:#fff;color:#000;padding:14px 24px;border-radius:8px;text-decoration:none;font-family:'igra',sans-serif;font-size:16px;border:2px solid #000;">Уже есть аккаунт? Войти</a>
+                <button id="guestPopupSkip" style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;padding:4px;">Продолжить без регистрации</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // показываем только гостям и только раз за сессию
+        if (sessionStorage.getItem('guestPopupSeen')) return;
+
+        const auth = await apiGet('api/auth.php', { action: 'status' });
+        if (auth.success && auth.data.logged_in) return;
+
+        // показываем с небольшой задержкой
+        setTimeout(() => {
+            const popup = document.getElementById('guestPopup');
+            if (popup) popup.style.display = 'flex';
+        }, 1500);
+
+        function closePopup() {
+            document.getElementById('guestPopup').style.display = 'none';
+            sessionStorage.setItem('guestPopupSeen', '1');
+        }
+
+        document.getElementById('guestPopupClose').addEventListener('click', closePopup);
+        document.getElementById('guestPopupSkip').addEventListener('click', closePopup);
+        document.getElementById('guestPopup').addEventListener('click', e => {
+            if (e.target === document.getElementById('guestPopup')) closePopup();
+        });
+    });
+    </script>
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         initAuthHeader();
